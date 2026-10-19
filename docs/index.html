@@ -25,6 +25,7 @@
       .wrap { max-width: 920px; margin: 0 auto; padding: 0 20px; }
 
       .top { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; }
+      .nav { display: flex; gap: 18px; }
       .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; color: inherit; text-decoration: none; }
 
       .hero { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; padding: 56px 0 72px; }
@@ -52,6 +53,26 @@
       .features p { margin: 0; color: var(--muted); font-size: 15px; }
       .features i { display: block; width: 28px; height: 4px; border-radius: 2px; background: var(--red); margin-bottom: 14px; }
 
+      /* How it works: numbered steps drive one large screenshot; click it to zoom. */
+      .how { padding: 48px 0 56px; border-top: 1px solid var(--border); }
+      .how h2 { font-size: 22px; margin: 0 0 20px; }
+      .tour { display: grid; grid-template-columns: 280px 1fr; gap: 24px; align-items: start; }
+      .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+      .steps button { display: flex; gap: 12px; width: 100%; text-align: left; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--canvas); color: var(--muted); font: inherit; font-size: 14px; line-height: 1.45; cursor: pointer; }
+      .steps button:hover { background: var(--subtle); }
+      .steps button[aria-selected="true"] { border-color: var(--red); background: var(--tint); color: var(--fg); }
+      .steps b { flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--subtle); border: 1px solid var(--border); font-size: 12px; color: var(--fg); }
+      .steps button[aria-selected="true"] b { background: var(--red); border-color: var(--red); color: #fff; }
+      .steps strong { display: block; color: var(--fg); font-size: 15px; }
+      .stage { display: block; padding: 0; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--subtle); cursor: zoom-in; box-shadow: 0 12px 32px -16px rgb(0 0 0 / 0.35); }
+      .stage img { display: block; width: 100%; height: auto; transition: opacity 0.18s; }
+      .stage img.swap { opacity: 0; }
+      .zoom { padding: 0; border: 0; border-radius: 12px; max-width: min(1280px, 96vw); background: var(--canvas); }
+      .zoom::backdrop { background: rgb(0 0 0 / 0.7); }
+      .zoom img { display: block; width: 100%; height: auto; }
+      .zoom form { position: absolute; top: 8px; right: 8px; }
+      .zoom form button { width: 32px; height: 32px; border: 0; border-radius: 50%; background: rgb(0 0 0 / 0.6); color: #fff; font-size: 20px; line-height: 1; cursor: pointer; }
+
       .install { padding: 48px 0 56px; border-top: 1px solid var(--border); }
       .install h2 { font-size: 22px; margin: 0 0 16px; }
       .install ol { margin: 0; padding-left: 20px; display: grid; gap: 8px; }
@@ -68,14 +89,17 @@
       @media (max-width: 720px) {
         .hero { grid-template-columns: 1fr; gap: 36px; padding: 32px 0 48px; }
         .features { grid-template-columns: 1fr; gap: 24px; }
+        .tour { grid-template-columns: 1fr; }
+        .stage { order: -1; }
       }
+      @media (prefers-reduced-motion: reduce) { .stage img { transition: none; } }
     </style>
   </head>
   <body>
     <div class="wrap">
       <header class="top">
         <a class="brand" href="#"><img src="icon.svg" width="28" height="28" alt="" />PR Redline</a>
-        <a href="#install">Install</a>
+        <nav class="nav"><a href="#how">How it works</a><a href="#install">Install</a></nav>
       </header>
 
       <main>
@@ -124,6 +148,25 @@
           </div>
         </section>
 
+        <section class="how" id="how" aria-label="How it works">
+          <h2>How it works</h2>
+          <div class="tour">
+            <ol class="steps" role="tablist">
+              <li><button role="tab" aria-selected="true" data-shot="shots/01-pull.webp" data-alt="A GitHub pull request into production, tinted pale red with a red bar on top"><b>1</b><span><strong>Open a pull request</strong>Into a protected branch, the page turns pale red with a bar on top.</span></button></li>
+              <li><button role="tab" aria-selected="false" data-shot="shots/02-list.webp" data-alt="The GitHub pull request list with protected-base PRs marked by a red edge and badge"><b>2</b><span><strong>Scan the PR list</strong>PRs into protected branches get a red edge and a badge.</span></button></li>
+              <li><button role="tab" aria-selected="false" data-shot="shots/03-popup.webp" data-alt="The toolbar popup showing the base branch, protected branches and colours"><b>3</b><span><strong>Check the popup</strong>See the base branch and edit branches and colours in place.</span></button></li>
+              <li><button role="tab" aria-selected="false" data-shot="shots/04-options.webp" data-alt="The settings page with branch patterns and feature toggles"><b>4</b><span><strong>Tune the settings</strong>Your own branch patterns, colours and which features run.</span></button></li>
+            </ol>
+            <button class="stage" type="button" aria-label="Open screenshot full size">
+              <img src="shots/01-pull.webp" width="1280" height="800" alt="A GitHub pull request into production, tinted pale red with a red bar on top" />
+            </button>
+          </div>
+          <dialog class="zoom" aria-label="Screenshot full size">
+            <form method="dialog"><button aria-label="Close">×</button></form>
+            <img alt="" />
+          </dialog>
+        </section>
+
         <section class="install" id="install">
           <h2>Install</h2>
           <ol>
@@ -147,5 +190,43 @@
         <span><a href="privacy.html">Privacy</a> · Not affiliated with GitHub.</span>
       </footer>
     </div>
+    <script>
+      const tabs = [...document.querySelectorAll('.steps button')];
+      const shot = document.querySelector('.stage img');
+      const zoom = document.querySelector('.zoom');
+      // Preload so switching steps never flashes an empty frame.
+      tabs.forEach((t) => { new Image().src = t.dataset.shot; });
+
+      function select(tab) {
+        tabs.forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
+        if (shot.getAttribute('src') === tab.dataset.shot) return;
+        shot.classList.add('swap');
+        setTimeout(() => {
+          shot.src = tab.dataset.shot;
+          shot.alt = tab.dataset.alt;
+          shot.classList.remove('swap');
+        }, 180);
+      }
+
+      tabs.forEach((t, i) => {
+        t.addEventListener('click', () => select(t));
+        t.addEventListener('keydown', (e) => {
+          const step = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key];
+          if (!step) return;
+          e.preventDefault();
+          const next = tabs[(i + step + tabs.length) % tabs.length];
+          next.focus();
+          select(next);
+        });
+      });
+
+      document.querySelector('.stage').addEventListener('click', () => {
+        const img = zoom.querySelector('img');
+        img.src = shot.src;
+        img.alt = shot.alt;
+        zoom.showModal();
+      });
+      zoom.addEventListener('click', (e) => { if (e.target === zoom) zoom.close(); });
+    </script>
   </body>
 </html>
