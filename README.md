@@ -1,4 +1,8 @@
-# GitHub PR Redline
+<img src="icons/icon.svg" width="64" height="64" alt="" />
+
+# PR Redline
+
+A browser extension for GitHub that draws a red line over pull requests into protected branches.
 
 When a pull request (or a compare page) targets `main`, `master`, `prod` or `production`:
 

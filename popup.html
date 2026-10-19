@@ -84,7 +84,8 @@
       .combo code { margin-left: auto; font-size: 11px; color: var(--fg); }
       .combo p { margin: 2px 0 0; font-size: 11px; color: var(--muted); }
 
-      footer { padding: 12px; }
+      footer { display: flex; align-items: center; justify-content: space-between; padding: 12px; }
+      .brand { display: flex; align-items: center; gap: 6px; font-weight: 600; color: var(--muted); }
       .link { border: 0; background: none; padding: 0; color: var(--accent); cursor: pointer; }
       .link:hover { text-decoration: underline; }
     </style>
@@ -124,7 +125,10 @@
       </div>
     </div>
 
-    <footer><button type="button" class="link" id="open-settings">All settings →</button></footer>
+    <footer>
+      <span class="brand"><img src="icons/icon-32.png" width="16" height="16" alt="" />PR Redline</span>
+      <button type="button" class="link" id="open-settings">All settings →</button>
+    </footer>
 
     <script src="settings.js"></script>
     <script src="popup.js"></script>

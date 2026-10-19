@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PR Redline</title>
+    <meta name="description" content="A browser extension that tints GitHub pull requests into protected branches, so a production PR never passes for a staging one." />
+    <link rel="icon" href="favicon.png" />
+    <style>
+      :root {
+        color-scheme: light dark;
+        --fg: #1f2328; --muted: #59636e; --border: #d0d7de; --canvas: #ffffff; --subtle: #f6f8fa;
+        --accent: #0969da; --red: #cf222e; --tint: #ffebe9; --ok: #1a7f37;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --fg: #e6edf3; --muted: #8b949e; --border: #30363d; --canvas: #0d1117; --subtle: #161b22;
+          --accent: #2f81f7; --red: #f85149; --tint: #2d1215; --ok: #3fb950;
+        }
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--canvas); color: var(--fg); font: 16px/1.55 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+      code { font: 0.9em ui-monospace, SFMono-Regular, Menlo, monospace; padding: 1px 6px; border-radius: 6px; background: var(--subtle); border: 1px solid var(--border); }
+      a { color: var(--accent); }
+      .wrap { max-width: 920px; margin: 0 auto; padding: 0 20px; }
+
+      .top { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; }
+      .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; color: inherit; text-decoration: none; }
+
+      .hero { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; padding: 56px 0 72px; }
+      h1 { font-size: clamp(34px, 5vw, 52px); line-height: 1.05; letter-spacing: -0.02em; margin: 0 0 18px; }
+      h1 span { box-shadow: inset 0 -0.18em 0 var(--red); }
+      .lead { font-size: 18px; color: var(--muted); margin: 0 0 28px; max-width: 34ch; }
+      .cta { display: inline-block; padding: 10px 18px; border-radius: 8px; background: var(--fg); color: var(--canvas); font-weight: 600; text-decoration: none; }
+
+      /* Two PR headers, before and after: the product in one picture. */
+      .demo { display: grid; gap: 14px; }
+      .pr { border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; background: var(--canvas); font-size: 14px; }
+      .pr.hot { background: var(--tint); border-top: 4px solid var(--red); }
+      .pr .title { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
+      .pr .title b { color: var(--muted); font-weight: 400; }
+      .pr .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; color: var(--muted); }
+      .state { padding: 2px 10px; border-radius: 999px; background: var(--ok); color: #fff; font-weight: 600; font-size: 12px; }
+      .pr.hot .meta code { color: var(--red); border-color: color-mix(in srgb, var(--red) 40%, transparent); }
+      .label { font-size: 12px; color: var(--muted); margin: 0 0 4px 2px; }
+
+      .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; padding: 48px 0; border-top: 1px solid var(--border); }
+      .features h2 { font-size: 16px; margin: 0 0 6px; }
+      .features p { margin: 0; color: var(--muted); font-size: 15px; }
+      .features i { display: block; width: 28px; height: 4px; border-radius: 2px; background: var(--red); margin-bottom: 14px; }
+
+      .install { padding: 48px 0 56px; border-top: 1px solid var(--border); }
+      .install h2 { font-size: 22px; margin: 0 0 16px; }
+      .install ol { margin: 0; padding-left: 20px; display: grid; gap: 8px; }
+      .install p { color: var(--muted); margin: 18px 0 0; font-size: 15px; }
+
+      footer { padding: 24px 0 40px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
+
+      @media (max-width: 720px) {
+        .hero { grid-template-columns: 1fr; gap: 36px; padding: 32px 0 48px; }
+        .features { grid-template-columns: 1fr; gap: 24px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="top">
+        <a class="brand" href="#"><img src="icon.svg" width="28" height="28" alt="" />PR Redline</a>
+        <a href="#install">Install</a>
+      </header>
+
+      <main>
+        <section class="hero">
+          <div>
+            <h1>See the <span>red line</span> before you merge.</h1>
+            <p class="lead">PR Redline tints every GitHub pull request into a protected branch, so a production PR never passes for a staging one.</p>
+            <a class="cta" href="#install">Add to your browser</a>
+          </div>
+          <div class="demo" aria-label="Example: the same pull request header with and without the redline">
+            <div>
+              <p class="label">Into staging</p>
+              <div class="pr">
+                <div class="title">Add order export <b>#481</b></div>
+                <div class="meta"><span class="state">Open</span> merge into <code>staging</code> from <code>feat/export</code></div>
+              </div>
+            </div>
+            <div>
+              <p class="label">Into production</p>
+              <div class="pr hot">
+                <div class="title">Add order export <b>#482</b></div>
+                <div class="meta"><span class="state">Open</span> merge into <code>production</code> from <code>staging</code></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="features" aria-label="Features">
+          <div>
+            <i></i>
+            <h2>Tinted pull requests</h2>
+            <p>Pages of PRs into <code>main</code>, <code>production</code> or your own patterns turn pale red with a bar on top. Merged ones fade.</p>
+          </div>
+          <div>
+            <i></i>
+            <h2>Everything else in flight</h2>
+            <p>The PR sidebar lists the other open pull requests into protected branches, and the PR list marks them with a badge.</p>
+          </div>
+          <div>
+            <i></i>
+            <h2>Yours to tune</h2>
+            <p>The toolbar popup shows what the current PR merges into, lets you edit branches, and picks colours from a wheel.</p>
+          </div>
+        </section>
+
+        <section class="install" id="install">
+          <h2>Install</h2>
+          <ol>
+            <li>Download or clone this repository.</li>
+            <li>Open <code>chrome://extensions</code> (or <code>comet://extensions</code> in Comet) and turn on Developer mode.</li>
+            <li>Click <strong>Load unpacked</strong> and pick the repository folder.</li>
+          </ol>
+          <p>Runs only on github.com, uses your logged-in session, needs no token, and keeps its settings in your browser.</p>
+        </section>
+      </main>
+
+      <footer>
+        <span>PR Redline</span>
+        <span>Not affiliated with GitHub.</span>
+      </footer>
+    </div>
+  </body>
+</html>

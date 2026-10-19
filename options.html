@@ -3,7 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>GitHub PR Redline: Settings</title>
+    <title>PR Redline settings</title>
+    <link rel="icon" href="icons/icon-32.png" />
     <style>
       :root { color-scheme: light dark; }
       @media (prefers-color-scheme: light) {
@@ -13,7 +14,7 @@
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         max-width: 620px; margin: 40px auto; padding: 0 20px; line-height: 1.5;
       }
-      h1 { font-size: 20px; margin-bottom: 4px; }
+      h1 { font-size: 20px; margin-bottom: 4px; display: flex; align-items: center; gap: 10px; }
       .sub { color: #8b949e; margin-top: 0; }
       label { display: block; margin: 18px 0 6px; font-weight: 600; }
       .hint { font-weight: 400; color: #8b949e; font-size: 13px; }
@@ -51,7 +52,7 @@
     </style>
   </head>
   <body>
-    <h1>GitHub PR Redline</h1>
+    <h1><img src="icons/icon-128.png" width="28" height="28" alt="" />PR Redline</h1>
     <p class="sub">Warns you when a GitHub pull request targets a protected branch.</p>
     <form id="form">
       <label for="branches">Protected branches

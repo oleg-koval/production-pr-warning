@@ -1,12 +1,24 @@
 {
   "manifest_version": 3,
-  "name": "GitHub PR Redline",
+  "name": "PR Redline",
   "version": "1.4.0",
-  "description": "Tints GitHub pull request pages when the PR targets a protected branch, and lists the other open PRs into those branches.",
-  "permissions": ["storage"],
+  "description": "Tints GitHub pull requests that target a protected branch, so a production PR never passes for a staging one.",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "permissions": [
+    "storage"
+  ],
   "action": {
-    "default_title": "GitHub PR Redline",
-    "default_popup": "popup.html"
+    "default_title": "PR Redline",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png"
+    }
   },
   "options_ui": {
     "page": "options.html",
@@ -14,10 +26,20 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://github.com/*"],
-      "js": ["settings.js", "pr-list.js", "list-highlight.js", "content.js"],
-      "css": ["redline.css"],
+      "matches": [
+        "https://github.com/*"
+      ],
+      "js": [
+        "settings.js",
+        "pr-list.js",
+        "list-highlight.js",
+        "content.js"
+      ],
+      "css": [
+        "redline.css"
+      ],
       "run_at": "document_idle"
     }
-  ]
+  ],
+  "short_name": "PR Redline"
 }
