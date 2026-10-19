@@ -66,6 +66,12 @@ function cachedPrs(repo, branches) {
   return promise;
 }
 
+// The search includes the current PR itself when it is open; leave it out of the count.
+function otherOpenCount(data, number) {
+  const includesSelf = data.prs.some((pr) => pr.number === number);
+  return Math.max(0, data.total - (includesSelf ? 1 : 0));
+}
+
 function render(block, state, ctx) {
   const content = block.querySelector('.ghrl-content');
   const pill = block.querySelector('.ghrl-pill');
@@ -83,8 +89,7 @@ function render(block, state, ctx) {
     body.appendChild(el('div', 'ghrl-error', `Could not load PRs: ${state.message}`));
   } else {
     const others = state.data.prs.filter((pr) => pr.number !== ctx.number);
-    const total = Math.max(0, state.data.total - (others.length < state.data.prs.length ? 1 : 0));
-    pill.textContent = String(total);
+    pill.textContent = String(otherOpenCount(state.data, ctx.number));
     if (others.length === 0) {
       body.appendChild(el('div', 'ghrl-empty', `No other open PRs into ${ctx.branches.join(', ')}.`));
     }

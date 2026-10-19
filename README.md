@@ -11,7 +11,7 @@ The PR list is read from GitHub's own pull request list page using your logged-i
 
 ## Settings
 
-- Toolbar popup: turn the tint, the PR list block and the list highlight on or off, and pick a colour preset.
+- Toolbar popup: shows which branch the current PR merges into and whether it is protected, with the count of other open protected PRs. Below that: turn the tint, the PR list block and the list highlight on or off, add or remove protected branches, and pick a colour preset or a custom combo from the colour wheel (one pick sets the light page, dark page and top-bar colours together).
 - All settings (popup button, or right-click the icon > Options): edit the protected branches (`*` wildcards such as `release/*` are allowed), pick custom light, dark and top-bar colours, and reset to defaults.
 
 Settings are stored in `chrome.storage.sync` and apply to open GitHub tabs immediately. Wildcard patterns tint the page but are left out of the PR list block and the list highlight (unless the list is already filtered by that base branch), because GitHub search has no wildcard for base branches. The list highlight checks up to the first 100 matching PRs.

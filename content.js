@@ -71,6 +71,32 @@ function apply() {
   }
 }
 
+// Answers the toolbar popup. The popup sends its own branch list so the count
+// never lags behind an edit it just made.
+function pageState() {
+  const path = location.pathname;
+  const pull = path.match(/^\/([^/]+\/[^/]+)\/pull\/(\d+)/);
+  if (pull) return { kind: 'pull', repo: pull[1], number: Number(pull[2]), base: detectBase(), done: isPullDone() };
+  const compare = path.match(/^\/([^/]+\/[^/]+)\/compare\//);
+  if (compare) return { kind: 'compare', repo: compare[1], base: detectBase() };
+  return { kind: 'other' };
+}
+
+chrome.runtime.onMessage.addListener((message, _sender, reply) => {
+  if (message?.type !== 'redline:state') return;
+  const state = pageState();
+  const branches = message.branches.filter((b) => !isWildcard(b));
+  if (state.kind !== 'pull' || !branchMatches(state.base, message.branches) || !branches.length) {
+    reply(state);
+    return;
+  }
+  cachedPrs(state.repo, branches).then(
+    (data) => reply({ ...state, others: otherOpenCount(data, state.number) }),
+    () => reply(state),
+  );
+  return true;
+});
+
 let pending = null;
 function schedule() {
   if (pending) return;
