@@ -46,7 +46,7 @@ PR Redline is not affiliated with or endorsed by GitHub, Inc.
 
 **Category:** Developer Tools
 **Language:** English
-**Homepage URL:** https://oleg-koval.github.io/production-pr-warning/
+**Homepage URL:** https://redline.olegkoval.com/
 **Support URL:** https://github.com/oleg-koval/production-pr-warning/issues
 
 ## Single purpose (required field)
@@ -75,7 +75,7 @@ No other permissions. No `tabs`, no `<all_urls>`, no remote code.
 
 ## Privacy policy URL
 
-https://oleg-koval.github.io/production-pr-warning/privacy.html
+https://redline.olegkoval.com/privacy.html
 
 ## Assets to upload
 
