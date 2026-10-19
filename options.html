@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GitHub PR Redline: Settings</title>
+    <style>
+      :root { color-scheme: light dark; }
+      @media (prefers-color-scheme: light) {
+        .sub, .hint { color: #59636e; }
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        max-width: 620px; margin: 40px auto; padding: 0 20px; line-height: 1.5;
+      }
+      h1 { font-size: 20px; margin-bottom: 4px; }
+      .sub { color: #8b949e; margin-top: 0; }
+      label { display: block; margin: 18px 0 6px; font-weight: 600; }
+      .hint { font-weight: 400; color: #8b949e; font-size: 13px; }
+      .hint code { font-size: 12px; background: color-mix(in srgb, #8b949e 22%, transparent); padding: 1px 5px; border-radius: 4px; }
+      textarea {
+        width: 100%; box-sizing: border-box; padding: 8px; font-size: 14px; min-height: 80px;
+        font-family: ui-monospace, monospace;
+        border: 1px solid #d0d7de; border-radius: 6px; background: Field; color: FieldText;
+      }
+      .row { display: flex; align-items: center; gap: 8px; margin-top: 18px; }
+      .row label { margin: 0; }
+      .colors { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+      .colors label { margin: 0 0 4px; font-size: 13px; }
+      input[type='color'] { width: 100%; height: 34px; padding: 2px; border: 1px solid #d0d7de; border-radius: 6px; background: Field; cursor: pointer; }
+      .swatches { display: flex; gap: 8px; margin-top: 10px; }
+      .swatch {
+        padding: 6px 10px; font-size: 12px; font-weight: 500; cursor: pointer; color: #1f2328;
+        border: 1px solid #d0d7de; border-top-width: 4px; border-radius: 6px;
+      }
+      .swatch:hover { border-color: #2f81f7; }
+      .preview { display: flex; gap: 12px; margin-top: 12px; }
+      .preview div {
+        flex: 1; padding: 10px 12px; font-size: 12px; border-radius: 6px;
+        border: 1px solid #d0d7de; border-top-width: 4px;
+      }
+      .preview .dark { color: #e6edf3; }
+      .preview .light { color: #1f2328; }
+      button {
+        padding: 8px 16px; font-size: 14px; font-weight: 600;
+        color: #fff; background: #1f883d; border: none; border-radius: 6px; cursor: pointer;
+      }
+      button.secondary { color: inherit; background: transparent; border: 1px solid #d0d7de; }
+      .actions { display: flex; align-items: center; gap: 8px; margin-top: 24px; }
+      #status { margin-left: 4px; color: #1f883d; font-weight: 600; }
+    </style>
+  </head>
+  <body>
+    <h1>GitHub PR Redline</h1>
+    <p class="sub">Warns you when a GitHub pull request targets a protected branch.</p>
+    <form id="form">
+      <label for="branches">Protected branches
+        <span class="hint">One per line. <code>*</code> matches anything, e.g. <code>release/*</code>. Wildcard patterns tint the page but are left out of the PR list block, because GitHub search has no wildcard for base branches.</span>
+      </label>
+      <textarea id="branches" placeholder="main"></textarea>
+
+      <label>Background colour
+        <span class="hint">Light and dark follow your GitHub theme. The bar is the 4px stripe on top.</span>
+      </label>
+      <div class="colors">
+        <div><label for="bgLight">Light theme</label><input type="color" id="bgLight" /></div>
+        <div><label for="bgDark">Dark theme</label><input type="color" id="bgDark" /></div>
+        <div><label for="bar">Top bar</label><input type="color" id="bar" /></div>
+      </div>
+      <div class="swatches" id="swatches"></div>
+      <div class="preview">
+        <div class="light" id="previewLight">Light theme preview</div>
+        <div class="dark" id="previewDark">Dark theme preview</div>
+      </div>
+
+      <div class="row">
+        <input type="checkbox" id="tintEnabled" />
+        <label for="tintEnabled">Tint PR pages that target a protected branch</label>
+      </div>
+      <div class="row">
+        <input type="checkbox" id="showBlock" />
+        <label for="showBlock">Show the block listing other open PRs into protected branches</label>
+      </div>
+
+      <div class="actions">
+        <button type="submit">Save</button>
+        <button type="button" class="secondary" id="reset">Reset to defaults</button>
+        <span id="status"></span>
+      </div>
+    </form>
+    <script src="settings.js"></script>
+    <script src="options.js"></script>
+  </body>
+</html>

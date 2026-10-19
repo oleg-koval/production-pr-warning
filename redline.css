@@ -1,17 +1,15 @@
 html.gh-redline {
-  --redline-bg: #ffebe9;
-  --redline-bar: #cf222e;
+  --redline-bg: var(--redline-user-bg-light, #ffebe9);
+  --redline-bar: var(--redline-user-bar, #cf222e);
 }
 
 html.gh-redline[data-color-mode="dark"] {
-  --redline-bg: #2d1215;
-  --redline-bar: #f85149;
+  --redline-bg: var(--redline-user-bg-dark, #2d1215);
 }
 
 @media (prefers-color-scheme: dark) {
   html.gh-redline[data-color-mode="auto"] {
-    --redline-bg: #2d1215;
-    --redline-bar: #f85149;
+    --redline-bg: var(--redline-user-bg-dark, #2d1215);
   }
 }
 

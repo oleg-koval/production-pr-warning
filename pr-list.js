@@ -54,11 +54,12 @@ async function fetchProtectedPrs(repo, branches) {
 
 const cache = new Map();
 function cachedPrs(repo, branches) {
-  const hit = cache.get(repo);
+  const key = listUrl(repo, branches);
+  const hit = cache.get(key);
   if (hit && Date.now() - hit.at < CACHE_MS) return hit.promise;
   const promise = fetchProtectedPrs(repo, branches);
-  cache.set(repo, { at: Date.now(), promise });
-  promise.catch(() => cache.delete(repo));
+  cache.set(key, { at: Date.now(), promise });
+  promise.catch(() => cache.delete(key));
   return promise;
 }
 

@@ -1,5 +1,6 @@
-const PROTECTED = ['main', 'master', 'prod', 'production'];
 const CLASS = 'gh-redline';
+
+let settings = { ...DEFAULT_SETTINGS };
 
 // Fork PRs render the ref as "owner:branch"; branch names cannot contain ":".
 const stripOwner = (ref) => ref.trim().split(':').pop();
@@ -30,13 +31,23 @@ function detectBase() {
   return null;
 }
 
-function apply() {
-  const isProtected = PROTECTED.includes(detectBase());
-  document.documentElement.classList.toggle(CLASS, isProtected);
+// Inline vars on <html> override the stylesheet defaults in redline.css.
+function applyColors() {
+  const style = document.documentElement.style;
+  style.setProperty('--redline-user-bg-light', settings.bgLight);
+  style.setProperty('--redline-user-bg-dark', settings.bgDark);
+  style.setProperty('--redline-user-bar', settings.bar);
+}
 
+function apply() {
+  const isProtected = branchMatches(detectBase(), settings.branches);
+  document.documentElement.classList.toggle(CLASS, isProtected && settings.tintEnabled);
+
+  // GitHub search has no wildcard for base:, so the list covers exact names only.
+  const listBranches = settings.branches.filter((b) => !isWildcard(b));
   const pull = location.pathname.match(/^\/([^/]+\/[^/]+)\/pull\/(\d+)/);
-  if (isProtected && pull) {
-    showProtectedPrList({ repo: pull[1], number: Number(pull[2]), branches: PROTECTED });
+  if (isProtected && pull && settings.showBlock && listBranches.length) {
+    showProtectedPrList({ repo: pull[1], number: Number(pull[2]), branches: listBranches });
   } else {
     removeProtectedPrList();
   }
@@ -51,7 +62,18 @@ function schedule() {
   }, 150);
 }
 
-apply();
-document.addEventListener('turbo:load', schedule);
-window.addEventListener('popstate', schedule);
-new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true });
+onSettingsChanged((next) => {
+  settings = next;
+  applyColors();
+  removeProtectedPrList();
+  apply();
+});
+
+loadSettings().then((loaded) => {
+  settings = loaded;
+  applyColors();
+  apply();
+  document.addEventListener('turbo:load', schedule);
+  window.addEventListener('popstate', schedule);
+  new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true });
+});
