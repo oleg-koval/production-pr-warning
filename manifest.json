@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "PR Redline",
+  "name": "PR Redline - Production PR warning",
   "version": "1.4.0",
   "description": "Tints GitHub pull requests that target a protected branch, so a production PR never passes for a staging one.",
   "icons": {
