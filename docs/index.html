@@ -56,6 +56,12 @@
 
       footer { padding: 24px 0 40px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
 
+      /* Sibling tools by the same author: one quiet row above the footer. */
+      .stack { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 20px 0; border-top: 1px solid var(--border); color: var(--muted); font-size: 14px; }
+      .stack a { display: inline-flex; align-items: center; gap: 8px; color: var(--fg); font-weight: 600; text-decoration: none; }
+      .stack a:hover { text-decoration: underline; }
+      .stack img { border-radius: 3px; }
+
       @media (max-width: 720px) {
         .hero { grid-template-columns: 1fr; gap: 36px; padding: 32px 0 48px; }
         .features { grid-template-columns: 1fr; gap: 24px; }
@@ -122,6 +128,12 @@
           <p>Runs only on github.com, uses your logged-in session, needs no token, and keeps its settings in your browser.</p>
         </section>
       </main>
+
+      <aside class="stack" aria-label="Related tools">
+        <span>Also for GitHub pull requests:</span>
+        <a href="https://mergechain.dev"><img src="mergechain-32.png" width="16" height="16" alt="" />MergeChain</a>
+        <span>blocks a PR's merge until the PRs it depends on land.</span>
+      </aside>
 
       <footer>
         <span>PR Redline</span>

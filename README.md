@@ -26,3 +26,7 @@ Settings are stored in `chrome.storage.sync` and apply to open GitHub tabs immed
 - Comet: open `comet://extensions`, same steps.
 
 After editing files, click the reload icon on the extension card and refresh GitHub.
+
+## Also for GitHub pull requests
+
+- [MergeChain](https://mergechain.dev): blocks a pull request's merge until the PRs it depends on land, across repos. PR Redline makes the merge *target* obvious; MergeChain controls merge *order*.
