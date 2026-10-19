@@ -1,0 +1,38 @@
+html.gh-redline {
+  --redline-bg: #ffebe9;
+  --redline-bar: #cf222e;
+}
+
+html.gh-redline[data-color-mode="dark"] {
+  --redline-bg: #2d1215;
+  --redline-bar: #f85149;
+}
+
+@media (prefers-color-scheme: dark) {
+  html.gh-redline[data-color-mode="auto"] {
+    --redline-bg: #2d1215;
+    --redline-bar: #f85149;
+  }
+}
+
+html.gh-redline,
+html.gh-redline body,
+html.gh-redline .application-main {
+  --bgColor-default: var(--redline-bg);
+  --bgColor-muted: var(--redline-bg);
+  --color-canvas-default: var(--redline-bg);
+  --color-canvas-subtle: var(--redline-bg);
+  background-color: var(--redline-bg) !important;
+}
+
+html.gh-redline body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--redline-bar);
+  z-index: 2147483647;
+  pointer-events: none;
+}

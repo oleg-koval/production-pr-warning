@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "GitHub PR Redline",
+  "version": "1.0.0",
+  "description": "Tints GitHub pull request pages red when the PR targets main, master or production.",
+  "content_scripts": [
+    {
+      "matches": ["https://github.com/*"],
+      "js": ["content.js"],
+      "css": ["redline.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}
