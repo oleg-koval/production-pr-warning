@@ -1,6 +1,11 @@
 # GitHub PR Redline
 
-Tints GitHub pages pale red, with a red bar on top, when a pull request (or a compare page) targets `main`, `master` or `production`. Edit `PROTECTED` in `content.js` to change the list.
+When a pull request (or a compare page) targets `main`, `master`, `prod` or `production`:
+
+- the page turns pale red with a red bar on top;
+- the PR sidebar (Conversation tab) shows a block listing the other open PRs into those branches in the same repo, with a link to the full list.
+
+Edit `PROTECTED` in `content.js` to change the branch list. The PR list is read from GitHub's own pull request list page with your logged-in session, so private repos work and no token is needed.
 
 ## Install
 

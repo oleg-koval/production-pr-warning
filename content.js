@@ -1,4 +1,4 @@
-const PROTECTED = ['main', 'master', 'production'];
+const PROTECTED = ['main', 'master', 'prod', 'production'];
 const CLASS = 'gh-redline';
 
 // Fork PRs render the ref as "owner:branch"; branch names cannot contain ":".
@@ -31,8 +31,15 @@ function detectBase() {
 }
 
 function apply() {
-  const base = detectBase();
-  document.documentElement.classList.toggle(CLASS, PROTECTED.includes(base));
+  const isProtected = PROTECTED.includes(detectBase());
+  document.documentElement.classList.toggle(CLASS, isProtected);
+
+  const pull = location.pathname.match(/^\/([^/]+\/[^/]+)\/pull\/(\d+)/);
+  if (isProtected && pull) {
+    showProtectedPrList({ repo: pull[1], number: Number(pull[2]), branches: PROTECTED });
+  } else {
+    removeProtectedPrList();
+  }
 }
 
 let pending = null;
