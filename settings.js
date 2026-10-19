@@ -14,6 +14,7 @@ const COLOR_PRESETS = [
 const DEFAULT_SETTINGS = {
   tintEnabled: true,
   showBlock: true,
+  highlightList: true,
   branches: ['main', 'master', 'prod', 'production'],
   bgLight: COLOR_PRESETS[0].bgLight,
   bgDark: COLOR_PRESETS[0].bgDark,

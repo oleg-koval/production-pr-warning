@@ -32,8 +32,8 @@ const listUrl = (repo, branches) => `/${repo}/pulls?q=${encodeURIComponent(listQ
 
 // Several base: qualifiers are OR'ed by GitHub search, so one request covers
 // every protected branch. The list page embeds its results as JSON for React.
-async function fetchProtectedPrs(repo, branches) {
-  const res = await fetch(listUrl(repo, branches), { credentials: 'same-origin' });
+async function fetchPullsPage(repo, query, page = 1) {
+  const res = await fetch(`/${repo}/pulls?q=${encodeURIComponent(query)}&page=${page}`, { credentials: 'same-origin' });
   if (!res.ok) throw new Error(`GitHub returned ${res.status}`);
   const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
   for (const script of doc.querySelectorAll('script[data-target="react-app.embeddedData"]')) {
@@ -41,6 +41,7 @@ async function fetchProtectedPrs(repo, branches) {
     if (!route) continue;
     return {
       total: route.totalCount ?? 0,
+      totalPages: route.totalPages ?? 1,
       prs: (route.results ?? []).map((pr) => ({
         number: pr.number,
         title: pr.title,
@@ -51,6 +52,8 @@ async function fetchProtectedPrs(repo, branches) {
   }
   throw new Error('PR list format not recognised');
 }
+
+const fetchProtectedPrs = (repo, branches) => fetchPullsPage(repo, listQuery(branches));
 
 const cache = new Map();
 function cachedPrs(repo, branches) {

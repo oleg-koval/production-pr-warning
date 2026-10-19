@@ -6,6 +6,7 @@ const fields = {
   bar: document.getElementById('bar'),
   tintEnabled: document.getElementById('tintEnabled'),
   showBlock: document.getElementById('showBlock'),
+  highlightList: document.getElementById('highlightList'),
 };
 const status = document.getElementById('status');
 
@@ -25,6 +26,7 @@ function fill(s) {
   fields.bar.value = s.bar;
   fields.tintEnabled.checked = s.tintEnabled;
   fields.showBlock.checked = s.showBlock;
+  fields.highlightList.checked = s.highlightList;
   preview();
 }
 
@@ -62,6 +64,7 @@ form.addEventListener('submit', (event) => {
     bar: fields.bar.value,
     tintEnabled: fields.tintEnabled.checked,
     showBlock: fields.showBlock.checked,
+    highlightList: fields.highlightList.checked,
   }).then((saved) => {
     fill(saved);
     flash('Saved');

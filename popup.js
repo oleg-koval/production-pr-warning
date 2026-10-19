@@ -3,6 +3,7 @@
 
 const tintEnabled = document.getElementById('tintEnabled');
 const showBlock = document.getElementById('showBlock');
+const highlightList = document.getElementById('highlightList');
 const swatches = document.getElementById('swatches');
 const branches = document.getElementById('branches');
 
@@ -12,6 +13,7 @@ const isPresetActive = (preset, s) =>
 function render(s) {
   tintEnabled.checked = s.tintEnabled;
   showBlock.checked = s.showBlock;
+  highlightList.checked = s.highlightList;
   branches.textContent = s.branches.join(', ');
   swatches.replaceChildren(
     ...COLOR_PRESETS.map((preset) => {
@@ -31,6 +33,7 @@ function render(s) {
 
 tintEnabled.addEventListener('change', () => saveSettings({ tintEnabled: tintEnabled.checked }));
 showBlock.addEventListener('change', () => saveSettings({ showBlock: showBlock.checked }));
+highlightList.addEventListener('change', () => saveSettings({ highlightList: highlightList.checked }));
 document.getElementById('open-settings').addEventListener('click', () => chrome.runtime.openOptionsPage());
 
 onSettingsChanged(render);

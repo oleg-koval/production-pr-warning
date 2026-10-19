@@ -13,6 +13,22 @@ html.gh-redline[data-color-mode="dark"] {
   }
 }
 
+/* Merged or closed: wash the colour out towards GitHub's neutral canvas. */
+html.gh-redline.gh-redline-dead {
+  --redline-bg: color-mix(in srgb, var(--redline-user-bg-light, #ffebe9) 30%, #f6f8fa);
+  --redline-bar: color-mix(in srgb, var(--redline-user-bar, #cf222e) 25%, #afb8c1);
+}
+html.gh-redline.gh-redline-dead[data-color-mode="dark"] {
+  --redline-bg: color-mix(in srgb, var(--redline-user-bg-dark, #2d1215) 30%, #151b23);
+  --redline-bar: color-mix(in srgb, var(--redline-user-bar, #cf222e) 25%, #3d444d);
+}
+@media (prefers-color-scheme: dark) {
+  html.gh-redline.gh-redline-dead[data-color-mode="auto"] {
+    --redline-bg: color-mix(in srgb, var(--redline-user-bg-dark, #2d1215) 30%, #151b23);
+    --redline-bar: color-mix(in srgb, var(--redline-user-bar, #cf222e) 25%, #3d444d);
+  }
+}
+
 html.gh-redline,
 html.gh-redline body,
 html.gh-redline .application-main {
@@ -108,3 +124,25 @@ html.gh-redline[data-color-mode="dark"] { --ghrl-card: #0d1117; }
   animation: ghrl-shimmer 1.4s ease infinite;
 }
 @keyframes ghrl-shimmer { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+
+/* Pull request list: rows whose base is a protected branch. Uses the user
+   colours directly because the page itself is not tinted here. */
+html { --ghrl-hit-bg: var(--redline-user-bg-light, #ffebe9); }
+html[data-color-mode="dark"] { --ghrl-hit-bg: var(--redline-user-bg-dark, #2d1215); }
+@media (prefers-color-scheme: dark) {
+  html[data-color-mode="auto"] { --ghrl-hit-bg: var(--redline-user-bg-dark, #2d1215); }
+}
+li.ghrl-row-hit {
+  background-color: var(--ghrl-hit-bg) !important;
+  box-shadow: inset 4px 0 0 var(--redline-user-bar, #cf222e);
+}
+li.ghrl-row-hit.ghrl-row-dead {
+  background-color: color-mix(in srgb, var(--ghrl-hit-bg) 35%, transparent) !important;
+  box-shadow: inset 4px 0 0 color-mix(in srgb, var(--redline-user-bar, #cf222e) 30%, #8c959f);
+}
+li.ghrl-row-dead .ghrl-row-badge { background: color-mix(in srgb, var(--redline-user-bar, #cf222e) 30%, #8c959f); }
+.ghrl-row-badge {
+  display: inline-block; margin-left: 8px; padding: 0 7px; vertical-align: middle;
+  font-size: 12px; font-weight: 500; line-height: 18px; border-radius: 999px;
+  color: #fff; background: var(--redline-user-bar, #cf222e);
+}

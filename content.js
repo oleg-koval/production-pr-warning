@@ -1,4 +1,5 @@
 const CLASS = 'gh-redline';
+const DEAD_CLASS = 'gh-redline-dead';
 
 let settings = { ...DEFAULT_SETTINGS };
 
@@ -31,6 +32,14 @@ function detectBase() {
   return null;
 }
 
+// Merged or closed PRs keep a faded tint: they still went to a protected branch,
+// but there is nothing left to act on.
+function isPullDone() {
+  const label = document.querySelector('[class*="StateLabel"][data-status]');
+  if (label) return /merged|closed/i.test(label.dataset.status);
+  return !!document.querySelector('.gh-header-meta .State--merged, .gh-header-meta .State--closed');
+}
+
 // Inline vars on <html> override the stylesheet defaults in redline.css.
 function applyColors() {
   const style = document.documentElement.style;
@@ -41,7 +50,9 @@ function applyColors() {
 
 function apply() {
   const isProtected = branchMatches(detectBase(), settings.branches);
-  document.documentElement.classList.toggle(CLASS, isProtected && settings.tintEnabled);
+  const tinted = isProtected && settings.tintEnabled;
+  document.documentElement.classList.toggle(CLASS, tinted);
+  document.documentElement.classList.toggle(DEAD_CLASS, tinted && /\/pull\/\d+/.test(location.pathname) && isPullDone());
 
   // GitHub search has no wildcard for base:, so the list covers exact names only.
   const listBranches = settings.branches.filter((b) => !isWildcard(b));
@@ -50,6 +61,13 @@ function apply() {
     showProtectedPrList({ repo: pull[1], number: Number(pull[2]), branches: listBranches });
   } else {
     removeProtectedPrList();
+  }
+
+  const pullList = location.pathname.match(/^\/([^/]+\/[^/]+)\/pulls\/?$/);
+  if (pullList && settings.highlightList) {
+    highlightPullList({ repo: pullList[1], patterns: settings.branches, onReady: schedule });
+  } else {
+    clearPullListHighlight();
   }
 }
 
@@ -66,6 +84,7 @@ onSettingsChanged((next) => {
   settings = next;
   applyColors();
   removeProtectedPrList();
+  clearPullListHighlight();
   apply();
 });
 
