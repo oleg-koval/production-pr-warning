@@ -5,7 +5,7 @@ When a pull request (or a compare page) targets `main`, `master`, `prod` or `pro
 - the page turns pale red with a red bar on top;
 - the PR sidebar (Conversation tab) shows a block listing the other open PRs into those branches in the same repo, with a link to the full list.
 
-Edit `PROTECTED` in `content.js` to change the branch list. The PR list is read from GitHub's own pull request list page with your logged-in session, so private repos work and no token is needed.
+Edit `PROTECTED` in `content.js` to change the branch list. The PR list is read from GitHub's own pull request list page using your logged-in session, so no token is needed.
 
 ## Install
 
