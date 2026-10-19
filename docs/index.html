@@ -31,6 +31,9 @@
       h1 { font-size: clamp(34px, 5vw, 52px); line-height: 1.05; letter-spacing: -0.02em; margin: 0 0 18px; }
       h1 span { box-shadow: inset 0 -0.18em 0 var(--red); }
       .lead { font-size: 18px; color: var(--muted); margin: 0 0 28px; max-width: 34ch; }
+      .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+      .review { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); }
+      .review::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #d29922; }
       .cta { display: inline-block; padding: 10px 18px; border-radius: 8px; background: var(--fg); color: var(--canvas); font-weight: 600; text-decoration: none; }
 
       /* Two PR headers, before and after: the product in one picture. */
@@ -80,7 +83,10 @@
           <div>
             <h1>See the <span>red line</span> before you merge.</h1>
             <p class="lead">PR Redline tints every GitHub pull request into a protected branch, so a production PR never passes for a staging one.</p>
-            <a class="cta" href="#install">Add to your browser</a>
+            <div class="actions">
+              <a class="cta" href="https://github.com/oleg-koval/production-pr-warning/releases/download/v1.4.0/pr-redline-1.4.0.zip">Download extension (.zip)</a>
+              <span class="review">Chrome Web Store listing in review</span>
+            </div>
           </div>
           <div class="demo" aria-label="Example: the same pull request header with and without the redline">
             <div>
@@ -121,10 +127,11 @@
         <section class="install" id="install">
           <h2>Install</h2>
           <ol>
-            <li>Download or clone this repository.</li>
+            <li><a href="https://github.com/oleg-koval/production-pr-warning/releases/download/v1.4.0/pr-redline-1.4.0.zip">Download the extension</a> and unzip it.</li>
             <li>Open <code>chrome://extensions</code> (or <code>comet://extensions</code> in Comet) and turn on Developer mode.</li>
-            <li>Click <strong>Load unpacked</strong> and pick the repository folder.</li>
+            <li>Click <strong>Load unpacked</strong> and pick the unzipped folder.</li>
           </ol>
+          <p>The Chrome Web Store listing is in review. Once it is approved, installing will be one click and updates will be automatic.</p>
           <p>Runs only on github.com, uses your logged-in session, needs no token, and keeps its settings in your browser.</p>
         </section>
       </main>
