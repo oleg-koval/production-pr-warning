@@ -12,14 +12,14 @@
 
 <p align="center">
   <a href="https://redline.olegkoval.com">Website</a> ·
-  <a href="https://github.com/oleg-koval/production-pr-warning/releases/latest">Download</a> ·
+  <a href="https://chromewebstore.google.com/detail/pr-redline-production-pr/bddnpilanolcofleogjnpceflakmpgea">Chrome Web Store</a> ·
   <a href="https://redline.olegkoval.com/privacy.html">Privacy</a> ·
   <a href="https://github.com/oleg-koval/production-pr-warning/issues">Issues</a>
 </p>
 
 <p align="center">
   <a href="https://github.com/oleg-koval/production-pr-warning/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/oleg-koval/production-pr-warning?label=release&color=cf222e" /></a>
-  <img alt="Chrome Web Store: in review" src="https://img.shields.io/badge/Chrome%20Web%20Store-in%20review-d29922" />
+  <a href="https://chromewebstore.google.com/detail/pr-redline-production-pr/bddnpilanolcofleogjnpceflakmpgea"><img alt="Chrome Web Store" src="https://img.shields.io/chrome-web-store/v/bddnpilanolcofleogjnpceflakmpgea?label=Chrome%20Web%20Store&color=1a7f37" /></a>
   <img alt="Manifest V3" src="https://img.shields.io/badge/manifest-v3-1f2328" />
   <img alt="No data collected" src="https://img.shields.io/badge/data%20collected-none-1a7f37" />
 </p>
@@ -54,11 +54,9 @@ PR Redline makes the target impossible to miss. It needs no token, no account an
 
 ## Install
 
-The Chrome Web Store listing is in review. Until it is approved:
+**[Add PR Redline from the Chrome Web Store](https://chromewebstore.google.com/detail/pr-redline-production-pr/bddnpilanolcofleogjnpceflakmpgea)**. Updates install automatically.
 
-1. [Download the latest release zip](https://github.com/oleg-koval/production-pr-warning/releases/latest) and unzip it.
-2. Open `chrome://extensions` (or `comet://extensions` in Comet) and turn on **Developer mode**.
-3. Click **Load unpacked** and pick the unzipped folder.
+To load it by hand instead: [download the latest release zip](https://github.com/oleg-koval/production-pr-warning/releases/latest), unzip it, open `chrome://extensions` (or `comet://extensions` in Comet), turn on **Developer mode**, click **Load unpacked** and pick the unzipped folder.
 
 It works in Chrome and in Chromium-based browsers such as Comet, Edge, Brave and Arc.
 
