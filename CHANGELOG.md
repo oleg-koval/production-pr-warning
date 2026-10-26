@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.5.1 (2026-10-26)
+
+### Fixed
+
+- A PR whose base branch was changed (for example a stacked PR that GitHub
+  moved to `main` after its parent merged) took the colour of the old base
+  branch from the timeline, instead of the branch it merges into now.
+
 ## 1.5.0 (2026-10-26)
 
 ### Added

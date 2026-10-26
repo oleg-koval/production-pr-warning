@@ -13,7 +13,8 @@ function baseFromPullPage() {
   if (baseRef?.textContent.trim()) return stripOwner(baseRef.textContent);
 
   // Files tab: two .commit-ref spans, the head one carries .head-ref.
-  const commitRef = document.querySelector('.commit-ref:not(.head-ref)');
+  // Timeline "changed the base branch from X to Y" events use .commit-ref too, and X is the old base.
+  const commitRef = document.querySelector('.commit-ref:not(.head-ref):not(.TimelineItem *)');
   if (commitRef?.textContent.trim()) return stripOwner(commitRef.textContent);
 
   // Commits tab and other React views: base branch link comes before the head link.
