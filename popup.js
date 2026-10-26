@@ -12,6 +12,7 @@ const custom = document.getElementById('custom');
 const picker = document.getElementById('picker');
 const wheel = document.getElementById('wheel');
 const knob = document.getElementById('knob');
+const saveError = document.getElementById('save-error');
 
 let settings = { ...DEFAULT_SETTINGS };
 // The colour group whose colour the swatches and wheel edit. Until the user
@@ -135,10 +136,21 @@ function renderStatus(state) {
 
 // --- Toggles ---
 
+// A refused save (too many branches for storage.sync) is shown here rather than lost.
+function guard(promise) {
+  return promise.then(
+    () => (saveError.hidden = true),
+    (error) => {
+      saveError.textContent = error.message;
+      saveError.hidden = false;
+    },
+  );
+}
+
 for (const button of toggles) {
   button.addEventListener('click', () => {
     const key = button.dataset.setting;
-    saveSettings({ [key]: !settings[key] });
+    guard(saveSettings({ [key]: !settings[key] }));
   });
 }
 
@@ -220,19 +232,21 @@ function renderChips({ list }, index) {
 }
 
 function removeBranch(index, branch, position) {
-  updateGroup(index, (g) => ({ ...g, branches: g.branches.filter((b) => b !== branch) })).then((saved) => {
-    update(saved);
-    const { list, add } = rows[index];
-    const buttons = list.querySelectorAll('button');
-    (buttons[Math.min(position, buttons.length - 1)] ?? add).focus();
-  });
+  guard(
+    updateGroup(index, (g) => ({ ...g, branches: g.branches.filter((b) => b !== branch) })).then((saved) => {
+      update(saved);
+      const { list, add } = rows[index];
+      const buttons = list.querySelectorAll('button');
+      (buttons[Math.min(position, buttons.length - 1)] ?? add).focus();
+    }),
+  );
 }
 
 function wireBranchInput(index, add, input) {
   const commit = () => {
     const added = parseBranches(input.value);
     input.value = '';
-    if (added.length) updateGroup(index, (g) => ({ ...g, branches: [...new Set([...g.branches, ...added])] }));
+    if (added.length) guard(updateGroup(index, (g) => ({ ...g, branches: [...new Set([...g.branches, ...added])] })));
   };
   const close = () => {
     input.hidden = true;
@@ -264,20 +278,27 @@ function wireBranchInput(index, add, input) {
 }
 
 addGroup.addEventListener('click', () => {
-  saveSettings((current) => ({ groups: [...current.groups, newGroup(current.groups)] })).then((saved) => {
-    followTab = false;
-    selected = saved.groups.length - 1;
-    update(saved);
-    rows[selected].add.click();
-  });
+  flushWheel();
+  guard(
+    saveSettings((current) => ({ groups: [...current.groups, newGroup(current.groups)] })).then((saved) => {
+      followTab = false;
+      selected = saved.groups.length - 1;
+      update(saved);
+      rows[selected].add.click();
+    }),
+  );
 });
 
 removeGroup.addEventListener('click', () => {
+  // A pending wheel save names its group by row, so it goes out before the rows shift.
+  flushWheel();
   const index = selected;
-  saveSettings((current) => ({ groups: current.groups.filter((_, i) => i !== index) })).then((saved) => {
-    selected = Math.max(0, index - 1);
-    update(saved);
-  });
+  guard(
+    saveSettings((current) => ({ groups: current.groups.filter((_, i) => i !== index) })).then((saved) => {
+      selected = Math.max(0, index - 1);
+      update(saved);
+    }),
+  );
 });
 
 // --- Colours: presets and the wheel ---
@@ -290,7 +311,11 @@ const presetButtons = COLOR_PRESETS.map((preset) => {
   button.style.setProperty('--l', preset.bgLight);
   button.style.setProperty('--d', preset.bgDark);
   button.style.setProperty('--b', preset.bar);
-  button.addEventListener('click', () => updateGroup(selected, (g) => ({ ...g, ...colours(preset) })));
+  button.addEventListener('click', () => {
+    // A preset is the latest choice, so it must not be overwritten by a wheel save still waiting.
+    flushWheel();
+    guard(updateGroup(selected, (g) => ({ ...g, ...colours(preset) })));
+  });
   presets.appendChild(button);
   return { preset, button };
 });
@@ -331,15 +356,23 @@ function previewWheel() {
 // storage.sync allows about 120 writes a minute: drags save once on release,
 // arrow keys after a short pause.
 let saveTimer = null;
+let pendingWheelSave = null;
 let dragging = false;
 function saveWheel(delay = 0) {
   const index = selected;
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => {
-    saveTimer = null;
-    const combo = comboFor(wheelPos);
-    updateGroup(index, (g) => ({ ...g, ...combo }));
-  }, delay);
+  pendingWheelSave = () => guard(updateGroup(index, (g) => ({ ...g, ...comboFor(wheelPos) })));
+  saveTimer = setTimeout(flushWheel, delay);
+}
+
+// Sends a waiting wheel save now, with the latest wheel position.
+function flushWheel() {
+  if (saveTimer === null) return;
+  clearTimeout(saveTimer);
+  saveTimer = null;
+  const save = pendingWheelSave;
+  pendingWheelSave = null;
+  save();
 }
 
 function pick(event) {

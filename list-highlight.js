@@ -32,7 +32,7 @@ function protectedNumbers(repo, query, onReady) {
   const hit = highlightCache.get(key);
   if (hit && Date.now() - hit.at < CACHE_MS) return hit;
 
-  const entry = { at: Date.now(), numbers: null };
+  const entry = { at: Date.now(), numbers: null, failed: false };
   highlightCache.set(key, entry);
   (async () => {
     const numbers = new Set();
@@ -43,7 +43,12 @@ function protectedNumbers(repo, query, onReady) {
     }
     entry.numbers = numbers;
     onReady();
-  })().catch(() => highlightCache.delete(key));
+  })().catch(() => {
+    // The failure stays cached for CACHE_MS, so a broken search is not re-sent on
+    // every DOM change. One repaint lets the other groups show now.
+    entry.failed = true;
+    onReady();
+  });
   return entry;
 }
 
@@ -78,8 +83,9 @@ function markRow(link, hit) {
   }
 }
 
-// Called on every DOM change. Paints only once every group's search is back,
-// so a row never flashes one colour and then another.
+// Called on every DOM change. Paints only once every group's search has settled,
+// so a row never flashes one colour and then another. A failed search is skipped
+// rather than blocking the others; its rows stay unmarked until a retry succeeds.
 function highlightPullList({ repo, groups, onReady }) {
   const params = new URLSearchParams(location.search);
   const searches = groupListQueries(params.get('q') ?? DEFAULT_LIST_QUERY, groups);
@@ -89,10 +95,11 @@ function highlightPullList({ repo, groups, onReady }) {
   const hits = searches.flatMap((search, index) =>
     search ? [{ group: groups[index], bases: search.bases, entry: protectedNumbers(repo, search.query, onReady) }] : [],
   );
-  if (hits.some((hit) => !hit.entry.numbers)) return;
+  if (hits.some((hit) => !hit.entry.numbers && !hit.entry.failed)) return;
+  const settled = hits.filter((hit) => hit.entry.numbers);
   links.forEach((link) => {
     const number = pullNumberOf(link);
-    markRow(link, hits.find((hit) => hit.entry.numbers.has(number)) ?? null);
+    markRow(link, settled.find((hit) => hit.entry.numbers.has(number)) ?? null);
   });
 }
 

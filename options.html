@@ -58,6 +58,8 @@
       button.add-group[hidden] { display: none; }
       .actions { display: flex; align-items: center; gap: 8px; margin-top: 24px; }
       #status { margin-left: 4px; color: #1f883d; font-weight: 600; }
+      #status.error { color: #cf222e; }
+      @media (prefers-color-scheme: dark) { #status.error { color: #ff7b72; } }
     </style>
   </head>
   <body>

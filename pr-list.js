@@ -109,10 +109,13 @@ function render(block, state, ctx) {
   body.appendChild(more);
 }
 
+// The branches are part of the key: the same PR can move to another colour's base.
+const blockKey = (ctx) => `${ctx.repo}#${ctx.number}|${ctx.branches.join(',')}`;
+
 function buildBlock(ctx) {
   const block = el('div', 'ghrl-block');
   block.id = BLOCK_ID;
-  block.dataset.key = `${ctx.repo}#${ctx.number}`;
+  block.dataset.key = blockKey(ctx);
   const iconCol = el('div', 'ghrl-icon-col');
   iconCol.appendChild(octicon('pr', 'ghrl-head-icon'));
   const content = el('div', 'ghrl-content');
@@ -128,8 +131,7 @@ function buildBlock(ctx) {
 
 // Called on every DOM change, so the already-mounted path must stay cheap.
 function showProtectedPrList(ctx) {
-  const key = `${ctx.repo}#${ctx.number}`;
-  if (document.getElementById(BLOCK_ID)?.dataset.key === key) return;
+  if (document.getElementById(BLOCK_ID)?.dataset.key === blockKey(ctx)) return;
   removeProtectedPrList();
 
   const sidebar = SIDEBAR_SELECTORS.map((s) => document.querySelector(s)).find(Boolean);

@@ -34,9 +34,20 @@ const DEFAULT_SETTINGS = {
 // Those become the first group, so an upgrade changes nothing on screen.
 const legacyGroup = (stored) => ({ ...DEFAULT_GROUP, ...stored });
 
+const LEGACY_KEYS = ['branches', 'bgLight', 'bgDark', 'bar'];
+
+// A pre-1.5 browser on the same account edits the mirrored keys and leaves
+// groups alone. Every 1.5 save rewrites the mirror, so any difference from the
+// first group is a newer legacy edit and wins. When they match, this is a no-op.
+const withLegacyEdits = (groups, stored) => {
+  const edits = Object.fromEntries(LEGACY_KEYS.filter((key) => stored[key] !== undefined).map((key) => [key, stored[key]]));
+  return [{ ...groups[0], ...edits }, ...groups.slice(1)];
+};
+
 function normalizeSettings(raw) {
   const stored = typeof raw === 'object' && raw !== null ? raw : {};
-  const groups = Array.isArray(stored.groups) && stored.groups.length ? stored.groups : [legacyGroup(stored)];
+  const groups =
+    Array.isArray(stored.groups) && stored.groups.length ? withLegacyEdits(stored.groups, stored) : [legacyGroup(stored)];
   return {
     tintEnabled: stored.tintEnabled ?? DEFAULT_SETTINGS.tintEnabled,
     showBlock: stored.showBlock ?? DEFAULT_SETTINGS.showBlock,
@@ -46,7 +57,8 @@ function normalizeSettings(raw) {
 }
 
 // The first group is mirrored into the pre-1.5 keys so an older version still
-// running on another synced browser keeps its protected branches.
+// running on another synced browser keeps its protected branches. The mirror is
+// stored twice, so it counts against the quota that saveSettings checks.
 const toStored = (settings) => ({ ...settings, branches: settings.groups[0].branches, ...colours(settings.groups[0]) });
 
 async function loadSettings() {
@@ -54,14 +66,22 @@ async function loadSettings() {
   return normalizeSettings(stored[SETTINGS_KEY]);
 }
 
+// Chrome counts the key and the JSON value against the per-item quota.
+const itemBytes = (value) => new TextEncoder().encode(SETTINGS_KEY + JSON.stringify(value)).length;
+
 // Writes are chained so two quick clicks cannot both read the old value and
 // the second overwrite the first. A function patch is applied to the fresh value.
+// A write over the quota is refused before it reaches storage, so nothing is half-saved.
 let writeQueue = Promise.resolve();
 function saveSettings(patch) {
   const write = writeQueue.then(async () => {
     const current = await loadSettings();
     const next = normalizeSettings({ ...current, ...(typeof patch === 'function' ? patch(current) : patch) });
-    await chrome.storage.sync.set({ [SETTINGS_KEY]: toStored(next) });
+    const stored = toStored(next);
+    if (itemBytes(stored) > chrome.storage.sync.QUOTA_BYTES_PER_ITEM) {
+      throw new Error('Too many branches or colours to sync. Remove some and try again.');
+    }
+    await chrome.storage.sync.set({ [SETTINGS_KEY]: stored });
     return next;
   });
   writeQueue = write.catch(() => {});
@@ -88,9 +108,11 @@ const isWildcard = (pattern) => pattern.includes('*');
 // First match wins, so a branch listed in two groups takes the upper colour.
 const groupFor = (branch, groups) => groups.find((g) => branchMatches(branch, g.branches)) ?? null;
 
-// Names GitHub search can look up for a group: exact names that no upper group claims.
-const searchableBranches = (group, groups) =>
-  group.branches.filter((b) => !isWildcard(b) && groupFor(b, groups) === group);
+// Exact names GitHub search can look up for a group. A name goes to the group
+// that wins it, even when that group only reaches it through a wildcard.
+const searchableBranches = (group, groups) => [
+  ...new Set(groups.flatMap((g) => g.branches).filter((b) => !isWildcard(b) && groupFor(b, groups) === group)),
+];
 
 const sameColours = (a, b) => a.bgLight === b.bgLight && a.bgDark === b.bgDark && a.bar === b.bar;
 

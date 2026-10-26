@@ -69,6 +69,7 @@
       }
       .add-group:hover { color: var(--fg); border-color: var(--muted); }
       .add-group[hidden] { display: none; }
+      .save-error { margin: 8px 12px 0; font-size: 12px; color: #cf222e; }
 
       .chips { display: flex; flex-wrap: wrap; gap: 4px; flex: 1; min-width: 0; }
       .chips ul { display: contents; }
@@ -133,6 +134,7 @@
     <div class="lbl" id="groups-label">Branches by colour</div>
     <div class="groups" id="groups" role="list" aria-labelledby="groups-label"></div>
     <button type="button" class="add-group" id="add-group">+ Add colour</button>
+    <p class="save-error" id="save-error" role="alert" hidden></p>
 
     <div class="lbl"><span id="colour-label">Colour of the selected row</span><button type="button" class="link" id="remove-group" hidden>Remove colour</button></div>
     <div class="swatches" role="group" aria-labelledby="colour-label">

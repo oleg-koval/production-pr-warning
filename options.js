@@ -110,9 +110,13 @@ function fill(s) {
   fields.highlightList.checked = s.highlightList;
 }
 
-function flash(text) {
+function flash(text, isError = false) {
   status.textContent = text;
-  setTimeout(() => (status.textContent = ''), 1500);
+  status.classList.toggle('error', isError);
+  setTimeout(() => {
+    status.textContent = '';
+    status.classList.remove('error');
+  }, 1500);
 }
 
 addGroup.addEventListener('click', () => {
@@ -128,10 +132,13 @@ form.addEventListener('submit', (event) => {
     tintEnabled: fields.tintEnabled.checked,
     showBlock: fields.showBlock.checked,
     highlightList: fields.highlightList.checked,
-  }).then((saved) => {
-    fill(saved);
-    flash('Saved');
-  });
+  }).then(
+    (saved) => {
+      fill(saved);
+      flash('Saved');
+    },
+    (error) => flash(error.message, true),
+  );
 });
 
 document.getElementById('reset').addEventListener('click', () => {
