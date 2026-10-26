@@ -39,11 +39,21 @@
       .status .v code { font-size: 13px; padding: 1px 6px; color: var(--bar-text); background: color-mix(in srgb, var(--bar) 14%, transparent); overflow-wrap: anywhere; }
       .status.calm .v code { color: var(--fg); background: color-mix(in srgb, var(--muted) 16%, transparent); }
 
-      .seg { display: flex; margin: 0 12px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-      .seg button { flex: 1; padding: 6px 0; font-size: 11px; cursor: pointer; background: none; border: 0; border-right: 1px solid var(--border); }
-      .seg button:last-child { border-right: 0; }
-      .seg button[aria-pressed='true'] { background: var(--fg); color: var(--canvas); font-weight: 600; }
-      .seg button:focus-visible { outline-offset: -3px; }
+      .switches { display: grid; margin: 0 12px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+      .switches button {
+        display: grid; grid-template-columns: 14px 1fr; column-gap: 8px; align-items: center; text-align: left;
+        padding: 6px 10px; cursor: pointer; background: none; border: 0; border-bottom: 1px solid var(--border);
+      }
+      .switches button:last-child { border-bottom: 0; }
+      .switches button:hover { background: var(--subtle); }
+      .switches button::before {
+        content: '✓'; grid-row: span 2; width: 14px; height: 14px; border: 1px solid var(--muted); border-radius: 4px;
+        font-size: 10px; line-height: 13px; text-align: center; color: transparent;
+      }
+      .switches button[aria-pressed='true']::before { background: var(--accent); border-color: var(--accent); color: #fff; }
+      .switches b { font-weight: 600; }
+      .switches small { font-size: 11px; color: var(--muted); }
+      .switches button:focus-visible { outline-offset: -3px; }
 
       .lbl { padding: 12px 12px 6px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
 
@@ -113,10 +123,11 @@
       <div class="v" style="font-size: 13px">Checking this tab…</div>
     </section>
 
-    <div class="seg" role="group" aria-label="Show on GitHub">
-      <button type="button" data-setting="tintEnabled" title="Tint pages of PRs into your branches">Tint</button>
-      <button type="button" data-setting="showBlock" title="List other open PRs into the same colour in the PR sidebar">Block</button>
-      <button type="button" data-setting="highlightList" title="Highlight PRs into your branches in pull request lists">Lists</button>
+    <div class="lbl" id="show-label" style="padding-top: 0">Show on GitHub</div>
+    <div class="switches" role="group" aria-labelledby="show-label">
+      <button type="button" data-setting="tintEnabled"><b>Tint PR pages</b><small>Background and top bar of the PR</small></button>
+      <button type="button" data-setting="showBlock"><b>Other open PRs</b><small>Same-colour PRs, in the PR sidebar</small></button>
+      <button type="button" data-setting="highlightList"><b>Mark PR lists</b><small>Coloured rows on the Pull requests tab</small></button>
     </div>
 
     <div class="lbl" id="groups-label">Branches by colour</div>

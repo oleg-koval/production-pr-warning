@@ -1,5 +1,6 @@
 const CLASS = 'gh-redline';
 const DEAD_CLASS = 'gh-redline-dead';
+const PULL_LIST_PATH = /^\/([^/]+\/[^/]+)\/pulls\/?$/;
 
 let settings = { ...DEFAULT_SETTINGS };
 
@@ -64,7 +65,7 @@ function apply() {
     removeProtectedPrList();
   }
 
-  const pullList = location.pathname.match(/^\/([^/]+\/[^/]+)\/pulls\/?$/);
+  const pullList = location.pathname.match(PULL_LIST_PATH);
   if (pullList && settings.highlightList) {
     highlightPullList({ repo: pullList[1], groups: settings.groups, onReady: schedule });
   } else {
@@ -80,6 +81,8 @@ function pageState() {
   if (pull) return { kind: 'pull', repo: pull[1], number: Number(pull[2]), base: detectBase(), done: isPullDone() };
   const compare = path.match(/^\/([^/]+\/[^/]+)\/compare\//);
   if (compare) return { kind: 'compare', repo: compare[1], base: detectBase() };
+  const list = path.match(PULL_LIST_PATH);
+  if (list) return { kind: 'list', repo: list[1], marked: document.querySelectorAll(`.${HIT_CLASS}`).length };
   return { kind: 'other' };
 }
 

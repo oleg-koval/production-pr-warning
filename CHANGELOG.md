@@ -18,6 +18,12 @@
 
 ### Changed
 
+- Popup: the three on/off toggles now say what they do ("Tint PR pages",
+  "Other open PRs", "Mark PR lists"), each with a one-line description.
+- Popup: on a repo's Pull requests tab it says how many PRs on the page are
+  marked, instead of "Not a pull request page". When it can't reach the tab
+  (opened before the extension was installed or updated), it says to reload
+  the tab.
 - Settings created in 1.4 become the first colour group, so an upgrade changes
   nothing on screen. The first group is also written back to the 1.4 keys, so
   an older version on another synced browser keeps working.

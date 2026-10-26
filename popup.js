@@ -86,8 +86,20 @@ async function refreshStatus() {
 function renderStatus(state) {
   const rows = [];
   let calm = true;
-  if (!state || state.kind === 'other') {
-    rows.push(el('div', 'v', 'Not a pull request page'), el('div', 'k', 'Open a PR on github.com to see its base'));
+  if (!state) {
+    rows.push(
+      el('div', 'v', 'Can’t read this tab'),
+      el('div', 'k', 'On GitHub? Reload the tab. Tabs opened before PR Redline was installed or updated can’t be read.'),
+    );
+    rows[0].style.fontSize = '13px';
+  } else if (state.kind === 'other') {
+    rows.push(el('div', 'v', 'Not a pull request page'), el('div', 'k', 'Open a pull request, or a repo’s Pull requests tab'));
+    rows[0].style.fontSize = '13px';
+  } else if (state.kind === 'list') {
+    const marked = settings.highlightList
+      ? `${state.marked} PR${state.marked === 1 ? '' : 's'} on this page marked by colour`
+      : 'Mark PR lists is off';
+    rows.push(el('div', 'v', 'Pull request list'), el('div', 'k', `${state.repo} · ${marked}`));
     rows[0].style.fontSize = '13px';
   } else if (!state.base) {
     rows.push(el('div', 'v', 'Reading the base branch…'), el('div', 'k', state.repo));
@@ -383,22 +395,23 @@ custom.addEventListener('click', () => {
 // --- Wiring ---
 
 function apply(next) {
-  const groupsChanged = JSON.stringify(next.groups) !== JSON.stringify(settings.groups);
+  const statusChanged =
+    JSON.stringify(next.groups) !== JSON.stringify(settings.groups) || next.highlightList !== settings.highlightList;
   settings = next;
   selected = Math.min(selected, settings.groups.length - 1);
   for (const button of toggles) button.setAttribute('aria-pressed', String(settings[button.dataset.setting]));
   renderGroups();
   // While the wheel is moving, an older save echoing back must not pull it back.
-  if (dragging || saveTimer !== null) return groupsChanged;
+  if (dragging || saveTimer !== null) return statusChanged;
   const group = settings.groups[selected];
   // Keep the knob where the user put it unless the colours came from elsewhere.
   if (comboFor(wheelPos).bar !== group.bar) wheelPos = wheelFromBar(group.bar);
   placeKnob();
   showColours(group);
-  return groupsChanged;
+  return statusChanged;
 }
 
-// The status card only depends on the colour groups.
+// The status card only depends on the colour groups and the list toggle.
 function update(next) {
   if (apply(next)) refreshStatus();
 }
