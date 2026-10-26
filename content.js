@@ -1,5 +1,6 @@
 const CLASS = 'gh-redline';
 const DEAD_CLASS = 'gh-redline-dead';
+const PULL_LIST_PATH = /^\/([^/]+\/[^/]+)\/pulls\/?$/;
 
 let settings = { ...DEFAULT_SETTINGS };
 
@@ -41,37 +42,38 @@ function isPullDone() {
 }
 
 // Inline vars on <html> override the stylesheet defaults in redline.css.
-function applyColors() {
+function applyColors(group) {
   const style = document.documentElement.style;
-  style.setProperty('--redline-user-bg-light', settings.bgLight);
-  style.setProperty('--redline-user-bg-dark', settings.bgDark);
-  style.setProperty('--redline-user-bar', settings.bar);
+  style.setProperty('--redline-user-bg-light', group.bgLight);
+  style.setProperty('--redline-user-bg-dark', group.bgDark);
+  style.setProperty('--redline-user-bar', group.bar);
 }
 
 function apply() {
-  const isProtected = branchMatches(detectBase(), settings.branches);
-  const tinted = isProtected && settings.tintEnabled;
+  const group = groupFor(detectBase(), settings.groups);
+  if (group) applyColors(group);
+  const tinted = !!group && settings.tintEnabled;
   document.documentElement.classList.toggle(CLASS, tinted);
   document.documentElement.classList.toggle(DEAD_CLASS, tinted && /\/pull\/\d+/.test(location.pathname) && isPullDone());
 
   // GitHub search has no wildcard for base:, so the list covers exact names only.
-  const listBranches = settings.branches.filter((b) => !isWildcard(b));
+  const listBranches = group ? searchableBranches(group, settings.groups) : [];
   const pull = location.pathname.match(/^\/([^/]+\/[^/]+)\/pull\/(\d+)/);
-  if (isProtected && pull && settings.showBlock && listBranches.length) {
+  if (pull && settings.showBlock && listBranches.length) {
     showProtectedPrList({ repo: pull[1], number: Number(pull[2]), branches: listBranches });
   } else {
     removeProtectedPrList();
   }
 
-  const pullList = location.pathname.match(/^\/([^/]+\/[^/]+)\/pulls\/?$/);
+  const pullList = location.pathname.match(PULL_LIST_PATH);
   if (pullList && settings.highlightList) {
-    highlightPullList({ repo: pullList[1], patterns: settings.branches, onReady: schedule });
+    highlightPullList({ repo: pullList[1], groups: settings.groups, onReady: schedule });
   } else {
     clearPullListHighlight();
   }
 }
 
-// Answers the toolbar popup. The popup sends its own branch list so the count
+// Answers the toolbar popup. The popup sends its own groups so the count
 // never lags behind an edit it just made.
 function pageState() {
   const path = location.pathname;
@@ -79,14 +81,17 @@ function pageState() {
   if (pull) return { kind: 'pull', repo: pull[1], number: Number(pull[2]), base: detectBase(), done: isPullDone() };
   const compare = path.match(/^\/([^/]+\/[^/]+)\/compare\//);
   if (compare) return { kind: 'compare', repo: compare[1], base: detectBase() };
+  const list = path.match(PULL_LIST_PATH);
+  if (list) return { kind: 'list', repo: list[1], marked: document.querySelectorAll(`.${HIT_CLASS}`).length };
   return { kind: 'other' };
 }
 
 chrome.runtime.onMessage.addListener((message, _sender, reply) => {
   if (message?.type !== 'redline:state') return;
   const state = pageState();
-  const branches = message.branches.filter((b) => !isWildcard(b));
-  if (state.kind !== 'pull' || !branchMatches(state.base, message.branches) || !branches.length) {
+  const group = groupFor(state.base, message.groups);
+  const branches = group ? searchableBranches(group, message.groups) : [];
+  if (state.kind !== 'pull' || !branches.length) {
     reply(state);
     return;
   }
@@ -108,7 +113,6 @@ function schedule() {
 
 onSettingsChanged((next) => {
   settings = next;
-  applyColors();
   removeProtectedPrList();
   clearPullListHighlight();
   apply();
@@ -116,7 +120,6 @@ onSettingsChanged((next) => {
 
 loadSettings().then((loaded) => {
   settings = loaded;
-  applyColors();
   apply();
   document.addEventListener('turbo:load', schedule);
   window.addEventListener('popstate', schedule);

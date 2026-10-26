@@ -1,74 +1,144 @@
 const form = document.getElementById('form');
+const groupsEl = document.getElementById('groups');
+const addGroup = document.getElementById('add-group');
 const fields = {
-  branches: document.getElementById('branches'),
-  bgLight: document.getElementById('bgLight'),
-  bgDark: document.getElementById('bgDark'),
-  bar: document.getElementById('bar'),
   tintEnabled: document.getElementById('tintEnabled'),
   showBlock: document.getElementById('showBlock'),
   highlightList: document.getElementById('highlightList'),
 };
 const status = document.getElementById('status');
+const COLOUR_INPUTS = [
+  ['bgLight', 'Light theme'],
+  ['bgDark', 'Dark theme'],
+  ['bar', 'Top bar'],
+];
 
-function preview() {
-  const light = document.getElementById('previewLight');
-  const dark = document.getElementById('previewDark');
-  light.style.background = fields.bgLight.value;
-  dark.style.background = fields.bgDark.value;
-  light.style.borderTopColor = fields.bar.value;
-  dark.style.borderTopColor = fields.bar.value;
+// Unsaved edits live here until Save, so moving or removing a card keeps what was typed in the others.
+let draft = [];
+
+function element(tag, props = {}, children = []) {
+  const node = Object.assign(document.createElement(tag), props);
+  node.append(...children);
+  return node;
 }
 
+function paintPreview(card, group) {
+  for (const [key, side] of [['bgLight', 'light'], ['bgDark', 'dark']]) {
+    const box = card.querySelector(`.preview .${side}`);
+    box.style.background = group[key];
+    box.style.borderTopColor = group.bar;
+  }
+}
+
+function colourField(card, group, [key, text], index) {
+  const id = `group-${index}-${key}`;
+  const input = element('input', { type: 'color', id, value: group[key] });
+  input.addEventListener('input', () => {
+    group[key] = input.value;
+    paintPreview(card, group);
+  });
+  return element('div', {}, [element('label', { htmlFor: id, textContent: text }), input]);
+}
+
+function presetButton(card, group, preset) {
+  const button = element('button', { type: 'button', className: 'swatch', textContent: preset.name });
+  button.style.background = preset.bgLight;
+  button.style.borderTopColor = preset.bar;
+  button.addEventListener('click', () => {
+    Object.assign(group, colours(preset));
+    for (const [key] of COLOUR_INPUTS) card.querySelector(`[id$='-${key}']`).value = group[key];
+    paintPreview(card, group);
+  });
+  return button;
+}
+
+function actionButton(text, label, disabled, onClick) {
+  const button = element('button', { type: 'button', className: 'icon', textContent: text, disabled });
+  button.setAttribute('aria-label', label);
+  button.addEventListener('click', onClick);
+  return button;
+}
+
+function move(index, step) {
+  const target = index + step;
+  draft = draft.map((group, i) => (i === index ? draft[target] : i === target ? draft[index] : group));
+  renderGroups();
+}
+
+function buildCard(group, index) {
+  const textareaId = `group-${index}-branches`;
+  const textarea = element('textarea', { id: textareaId, value: group.text, spellcheck: false, placeholder: 'main' });
+  textarea.addEventListener('input', () => (group.text = textarea.value));
+  const card = element('div', { className: 'group' });
+  card.setAttribute('role', 'listitem');
+  card.append(
+    element('div', { className: 'group-main' }, [
+      element('label', { htmlFor: textareaId, textContent: 'Branches' }),
+      textarea,
+      element('div', { className: 'colors' }, COLOUR_INPUTS.map((entry) => colourField(card, group, entry, index))),
+      element('div', { className: 'swatches' }, COLOR_PRESETS.map((preset) => presetButton(card, group, preset))),
+      element('div', { className: 'preview' }, [
+        element('div', { className: 'light', textContent: 'Light theme preview' }),
+        element('div', { className: 'dark', textContent: 'Dark theme preview' }),
+      ]),
+    ]),
+    element('div', { className: 'group-actions' }, [
+      actionButton('↑', 'Move this colour up', index === 0, () => move(index, -1)),
+      actionButton('↓', 'Move this colour down', index === draft.length - 1, () => move(index, 1)),
+      actionButton('Remove', 'Remove this colour', draft.length === 1, () => {
+        draft = draft.filter((_, i) => i !== index);
+        renderGroups();
+      }),
+    ]),
+  );
+  paintPreview(card, group);
+  return card;
+}
+
+function renderGroups() {
+  groupsEl.replaceChildren(...draft.map(buildCard));
+  addGroup.hidden = draft.length >= MAX_GROUPS;
+}
+
+const toDraft = (group) => ({ id: group.id, text: group.branches.join('\n'), ...colours(group) });
+
 function fill(s) {
-  fields.branches.value = s.branches.join('\n');
-  fields.bgLight.value = s.bgLight;
-  fields.bgDark.value = s.bgDark;
-  fields.bar.value = s.bar;
+  draft = s.groups.map(toDraft);
+  renderGroups();
   fields.tintEnabled.checked = s.tintEnabled;
   fields.showBlock.checked = s.showBlock;
   fields.highlightList.checked = s.highlightList;
-  preview();
 }
 
-function flash(text) {
+function flash(text, isError = false) {
   status.textContent = text;
-  setTimeout(() => (status.textContent = ''), 1500);
+  status.classList.toggle('error', isError);
+  setTimeout(() => {
+    status.textContent = '';
+    status.classList.remove('error');
+  }, 1500);
 }
 
-document.getElementById('swatches').replaceChildren(
-  ...COLOR_PRESETS.map((preset) => {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'swatch';
-    button.textContent = preset.name;
-    button.style.background = preset.bgLight;
-    button.style.borderTopColor = preset.bar;
-    button.addEventListener('click', () => {
-      fields.bgLight.value = preset.bgLight;
-      fields.bgDark.value = preset.bgDark;
-      fields.bar.value = preset.bar;
-      preview();
-    });
-    return button;
-  }),
-);
-
-for (const input of [fields.bgLight, fields.bgDark, fields.bar]) input.addEventListener('input', preview);
+addGroup.addEventListener('click', () => {
+  draft = [...draft, toDraft(newGroup(draft))];
+  renderGroups();
+  groupsEl.lastElementChild.querySelector('textarea').focus();
+});
 
 form.addEventListener('submit', (event) => {
   event.preventDefault();
   saveSettings({
-    branches: parseBranches(fields.branches.value),
-    bgLight: fields.bgLight.value,
-    bgDark: fields.bgDark.value,
-    bar: fields.bar.value,
+    groups: draft.map((group) => ({ id: group.id, branches: parseBranches(group.text), ...colours(group) })),
     tintEnabled: fields.tintEnabled.checked,
     showBlock: fields.showBlock.checked,
     highlightList: fields.highlightList.checked,
-  }).then((saved) => {
-    fill(saved);
-    flash('Saved');
-  });
+  }).then(
+    (saved) => {
+      fill(saved);
+      flash('Saved');
+    },
+    (error) => flash(error.message, true),
+  );
 });
 
 document.getElementById('reset').addEventListener('click', () => {

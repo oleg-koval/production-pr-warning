@@ -1,4 +1,5 @@
-// "Open PRs into protected branches" block for the PR sidebar. Visual language
+// "Open PRs into <branches>" block for the PR sidebar, scoped to the colour
+// group of the current PR's base. Visual language
 // follows mergechain's dependency block: left icon column + content area,
 // Primer tokens, octicons, clickable rows.
 
@@ -91,7 +92,7 @@ function render(block, state, ctx) {
     const others = state.data.prs.filter((pr) => pr.number !== ctx.number);
     pill.textContent = String(otherOpenCount(state.data, ctx.number));
     if (others.length === 0) {
-      body.appendChild(el('div', 'ghrl-empty', `No other open PRs into ${ctx.branches.join(', ')}.`));
+      body.appendChild(el('div', 'ghrl-empty', 'No other open PRs.'));
     }
     for (const pr of others.slice(0, MAX_ROWS)) {
       const link = el('a', `ghrl-link ghrl-row--${pr.draft ? 'draft' : 'open'}`);
@@ -108,15 +109,18 @@ function render(block, state, ctx) {
   body.appendChild(more);
 }
 
+// The branches are part of the key: the same PR can move to another colour's base.
+const blockKey = (ctx) => `${ctx.repo}#${ctx.number}|${ctx.branches.join(',')}`;
+
 function buildBlock(ctx) {
   const block = el('div', 'ghrl-block');
   block.id = BLOCK_ID;
-  block.dataset.key = `${ctx.repo}#${ctx.number}`;
+  block.dataset.key = blockKey(ctx);
   const iconCol = el('div', 'ghrl-icon-col');
   iconCol.appendChild(octicon('pr', 'ghrl-head-icon'));
   const content = el('div', 'ghrl-content');
   const header = el('div', 'ghrl-header');
-  header.appendChild(el('span', 'ghrl-heading', 'Open PRs into protected branches'));
+  header.appendChild(el('span', 'ghrl-heading', `Open PRs into ${ctx.branches.join(', ')}`));
   header.appendChild(el('span', 'ghrl-pill'));
   content.appendChild(header);
   content.appendChild(el('div', 'ghrl-body'));
@@ -127,8 +131,7 @@ function buildBlock(ctx) {
 
 // Called on every DOM change, so the already-mounted path must stay cheap.
 function showProtectedPrList(ctx) {
-  const key = `${ctx.repo}#${ctx.number}`;
-  if (document.getElementById(BLOCK_ID)?.dataset.key === key) return;
+  if (document.getElementById(BLOCK_ID)?.dataset.key === blockKey(ctx)) return;
   removeProtectedPrList();
 
   const sidebar = SIDEBAR_SELECTORS.map((s) => document.querySelector(s)).find(Boolean);

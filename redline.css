@@ -51,7 +51,7 @@ html.gh-redline body::before {
   pointer-events: none;
 }
 
-/* Sidebar block listing open PRs into protected branches.
+/* Sidebar block listing open PRs into the same colour group's branches.
    Mirrors mergechain's dependency block: icon column + content area. */
 html.gh-redline { --ghrl-card: #ffffff; }
 html.gh-redline[data-color-mode="dark"] { --ghrl-card: #0d1117; }
@@ -63,7 +63,7 @@ html.gh-redline[data-color-mode="dark"] { --ghrl-card: #0d1117; }
   display: flex;
   width: 100%;
   margin: 0 0 16px;
-  border: 1px solid var(--borderColor-danger-emphasis, #cf222e);
+  border: 1px solid var(--redline-user-bar, #cf222e);
   border-radius: 6px;
   font-size: 13px;
   color: var(--fgColor-default, #1f2328);
@@ -83,7 +83,7 @@ html.gh-redline[data-color-mode="dark"] { --ghrl-card: #0d1117; }
   justify-content: center;
   padding-top: 12px;
   background: var(--redline-bg);
-  border-right: 1px solid var(--borderColor-danger-muted, rgba(207, 34, 46, 0.4));
+  border-right: 1px solid color-mix(in srgb, var(--redline-user-bar, #cf222e) 40%, transparent);
   border-radius: 5px 0 0 5px;
   color: var(--redline-bar);
 }
@@ -100,7 +100,7 @@ html.gh-redline[data-color-mode="dark"] { --ghrl-card: #0d1117; }
 .ghrl-pill {
   margin-left: auto;
   font-size: 12px; font-weight: 500; padding: 1px 8px; border-radius: 999px;
-  background: var(--bgColor-danger-emphasis, #cf222e); color: #fff;
+  background: var(--redline-user-bar, #cf222e); color: #fff;
 }
 .ghrl-link {
   display: flex; align-items: center; gap: 8px; min-width: 0;
@@ -125,24 +125,24 @@ html.gh-redline[data-color-mode="dark"] { --ghrl-card: #0d1117; }
 }
 @keyframes ghrl-shimmer { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
 
-/* Pull request list: rows whose base is a protected branch. Uses the user
-   colours directly because the page itself is not tinted here. */
-html { --ghrl-hit-bg: var(--redline-user-bg-light, #ffebe9); }
-html[data-color-mode="dark"] { --ghrl-hit-bg: var(--redline-user-bg-dark, #2d1215); }
+/* Pull request list: rows whose base is in a colour group. Each row carries
+   its group's colours as --ghrl-row-* vars, set by list-highlight.js. */
+li.ghrl-row-hit { --ghrl-hit-bg: var(--ghrl-row-light, #ffebe9); }
+html[data-color-mode="dark"] li.ghrl-row-hit { --ghrl-hit-bg: var(--ghrl-row-dark, #2d1215); }
 @media (prefers-color-scheme: dark) {
-  html[data-color-mode="auto"] { --ghrl-hit-bg: var(--redline-user-bg-dark, #2d1215); }
+  html[data-color-mode="auto"] li.ghrl-row-hit { --ghrl-hit-bg: var(--ghrl-row-dark, #2d1215); }
 }
 li.ghrl-row-hit {
   background-color: var(--ghrl-hit-bg) !important;
-  box-shadow: inset 4px 0 0 var(--redline-user-bar, #cf222e);
+  box-shadow: inset 4px 0 0 var(--ghrl-row-bar, #cf222e);
 }
 li.ghrl-row-hit.ghrl-row-dead {
   background-color: color-mix(in srgb, var(--ghrl-hit-bg) 35%, transparent) !important;
-  box-shadow: inset 4px 0 0 color-mix(in srgb, var(--redline-user-bar, #cf222e) 30%, #8c959f);
+  box-shadow: inset 4px 0 0 color-mix(in srgb, var(--ghrl-row-bar, #cf222e) 30%, #8c959f);
 }
-li.ghrl-row-dead .ghrl-row-badge { background: color-mix(in srgb, var(--redline-user-bar, #cf222e) 30%, #8c959f); }
+li.ghrl-row-dead .ghrl-row-badge { background: color-mix(in srgb, var(--ghrl-row-bar, #cf222e) 30%, #8c959f); }
 .ghrl-row-badge {
   display: inline-block; margin-left: 8px; padding: 0 7px; vertical-align: middle;
   font-size: 12px; font-weight: 500; line-height: 18px; border-radius: 999px;
-  color: #fff; background: var(--redline-user-bar, #cf222e);
+  color: #fff; background: var(--ghrl-row-bar, #cf222e);
 }

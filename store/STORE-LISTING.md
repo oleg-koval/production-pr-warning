@@ -17,20 +17,22 @@ The zip holds only the runtime files (manifest, scripts, styles, pages, icons).
 **Name** (from `manifest.json`): PR Redline - Production PR warning
 
 **Summary (132 chars max):**
-Tints GitHub pull requests that target a protected branch, so a production PR never passes for a staging one.
+Colours GitHub pull requests by base branch: red for production, green for staging, or your own colours.
 
 **Description:**
 
-PR Redline puts a red line over every GitHub pull request into a protected
-branch (main, master, prod or production by default), so you always know
-whether you are about to merge into staging or into production.
+PR Redline colours every GitHub pull request by the branch it merges into.
+PRs into main, master, prod or production turn red by default, and you can add
+more colours, such as green for staging, so you always know whether you are
+about to merge into staging or into production.
 
-- Pull request and compare pages into a protected branch turn pale red with a
-  red bar on top. Merged and closed ones keep a faded tint.
-- The repository's pull request list marks those PRs with a red edge and a
-  "protected base" badge.
-- The PR sidebar lists the other open pull requests into protected branches in
-  the same repository.
+- Pull request and compare pages take the colour of their base branch, with a
+  bar on top. Merged and closed ones keep a faded tint.
+- The repository's pull request list marks those PRs with a coloured edge and a
+  badge.
+- The PR sidebar lists the other open pull requests into branches of the same
+  colour in the same repository.
+- Up to 8 colour groups, each with its own branch list.
 - The toolbar popup shows what the current PR merges into and lets you edit
   branches and colours in place.
 - Your own branch names and wildcards such as release/*. Light and dark
@@ -51,16 +53,16 @@ PR Redline is not affiliated with or endorsed by GitHub, Inc.
 
 ## Single purpose (required field)
 
-Visually warn when a GitHub pull request targets a protected branch.
+Visually mark which branch a GitHub pull request targets, by colouring it.
 
 ## Permission justifications (required field)
 
-- **storage**: saves the user's settings (protected branch names, colours,
+- **storage**: saves the user's settings (branch names, colours,
   feature toggles) with `chrome.storage.sync`. Nothing else is stored.
 - **Content script on `https://github.com/*`** (host access): reads the base
   branch from pull request and compare pages to tint them, and loads the
   repository's own pull request list page (same origin, the user's existing
-  session) to mark and list PRs into protected branches. No other sites.
+  session) to mark and list PRs into the configured branches. No other sites.
 
 No other permissions. No `tabs`, no `<all_urls>`, no remote code.
 

@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>PR Redline</title>
-    <meta name="description" content="A browser extension that tints GitHub pull requests into protected branches, so a production PR never passes for a staging one." />
+    <meta name="description" content="A browser extension that colours GitHub pull requests by their base branch: red for production, green for staging, or your own colours." />
     <link rel="icon" href="favicon.png" />
     <style>
       :root {
@@ -105,10 +105,10 @@
         <section class="hero">
           <div>
             <h1>See the <span>red line</span> before you merge.</h1>
-            <p class="lead">PR Redline tints every GitHub pull request into a protected branch, so a production PR never passes for a staging one.</p>
+            <p class="lead">PR Redline colours every GitHub pull request by the branch it merges into, so a production PR never passes for a staging one.</p>
             <div class="actions">
               <a class="cta" href="https://chromewebstore.google.com/detail/pr-redline-production-pr/bddnpilanolcofleogjnpceflakmpgea">Add to Chrome, free</a>
-              <a class="alt" href="https://github.com/oleg-koval/production-pr-warning/releases/download/v1.4.0/pr-redline-1.4.0.zip">or download the .zip</a>
+              <a class="alt" href="https://github.com/oleg-koval/production-pr-warning/releases/download/v1.5.0/pr-redline-1.5.0.zip">or download the .zip</a>
             </div>
           </div>
           <div class="demo" aria-label="Example: the same pull request header with and without the redline">
@@ -133,17 +133,17 @@
           <div>
             <i></i>
             <h2>Tinted pull requests</h2>
-            <p>Pages of PRs into <code>main</code>, <code>production</code> or your own patterns turn pale red with a bar on top. Merged ones fade.</p>
+            <p>PRs into <code>main</code> or <code>production</code> turn pale red with a bar on top. Give <code>staging</code> green, <code>release/*</code> blue, or any colour you like. Merged ones fade.</p>
           </div>
           <div>
             <i></i>
             <h2>Everything else in flight</h2>
-            <p>The PR sidebar lists the other open pull requests into protected branches, and the PR list marks them with a badge.</p>
+            <p>The PR sidebar lists the other open pull requests into branches of the same colour, and the PR list marks each one in its colour.</p>
           </div>
           <div>
             <i></i>
             <h2>Yours to tune</h2>
-            <p>The toolbar popup shows what the current PR merges into, lets you edit branches, and picks colours from a wheel.</p>
+            <p>The toolbar popup shows what the current PR merges into, lets you edit each colour's branches, and adds new colours in one click.</p>
           </div>
         </section>
 
@@ -151,10 +151,10 @@
           <h2>How it works</h2>
           <div class="tour">
             <ol class="steps" role="tablist">
-              <li><button role="tab" aria-selected="true" data-shot="shots/01-pull.webp" data-alt="A GitHub pull request into production, tinted pale red with a red bar on top"><b>1</b><span><strong>Open a pull request</strong>Into a protected branch, the page turns pale red with a bar on top.</span></button></li>
-              <li><button role="tab" aria-selected="false" data-shot="shots/02-list.webp" data-alt="The GitHub pull request list with protected-base PRs marked by a red edge and badge"><b>2</b><span><strong>Scan the PR list</strong>PRs into protected branches get a red edge and a badge.</span></button></li>
-              <li><button role="tab" aria-selected="false" data-shot="shots/03-popup.webp" data-alt="The toolbar popup showing the base branch, protected branches and colours"><b>3</b><span><strong>Check the popup</strong>See the base branch and edit branches and colours in place.</span></button></li>
-              <li><button role="tab" aria-selected="false" data-shot="shots/04-options.webp" data-alt="The settings page with branch patterns and feature toggles"><b>4</b><span><strong>Tune the settings</strong>Your own branch patterns, colours and which features run.</span></button></li>
+              <li><button role="tab" aria-selected="true" data-shot="shots/01-pull.webp" data-alt="A GitHub pull request into production, tinted pale red with a red bar on top"><b>1</b><span><strong>Open a pull request</strong>The page takes the colour of its base branch, with a bar on top.</span></button></li>
+              <li><button role="tab" aria-selected="false" data-shot="shots/02-list.webp" data-alt="The GitHub pull request list with PRs marked by a coloured edge and badge"><b>2</b><span><strong>Scan the PR list</strong>PRs into your branches get a coloured edge and a badge.</span></button></li>
+              <li><button role="tab" aria-selected="false" data-shot="shots/03-popup.webp" data-alt="The toolbar popup showing the base branch, its colour and the branches in each colour"><b>3</b><span><strong>Check the popup</strong>See the base branch and its colour, and edit branches and colours in place.</span></button></li>
+              <li><button role="tab" aria-selected="false" data-shot="shots/04-options.webp" data-alt="The settings page with branch patterns and feature toggles"><b>4</b><span><strong>Tune the settings</strong>Up to 8 colours, each with its own branch patterns, plus which features run.</span></button></li>
             </ol>
             <button class="stage" type="button" aria-label="Open screenshot full size">
               <img src="shots/01-pull.webp" width="1280" height="800" alt="A GitHub pull request into production, tinted pale red with a red bar on top" />
@@ -173,7 +173,7 @@
             <li>Click <strong>Add to Chrome</strong>. It works in Comet, Edge, Brave and other Chromium browsers too.</li>
             <li>Open any pull request into <code>main</code> or <code>production</code> on github.com.</li>
           </ol>
-          <p>Updates install automatically. Prefer to load it by hand? <a href="https://github.com/oleg-koval/production-pr-warning/releases/download/v1.4.0/pr-redline-1.4.0.zip">Download the .zip</a>, unzip it, and use <strong>Load unpacked</strong> on <code>chrome://extensions</code> with Developer mode on.</p>
+          <p>Updates install automatically. Prefer to load it by hand? <a href="https://github.com/oleg-koval/production-pr-warning/releases/download/v1.5.0/pr-redline-1.5.0.zip">Download the .zip</a>, unzip it, and use <strong>Load unpacked</strong> on <code>chrome://extensions</code> with Developer mode on.</p>
           <p>Runs only on github.com, uses your logged-in session, needs no token, and keeps its settings in your browser.</p>
         </section>
       </main>
