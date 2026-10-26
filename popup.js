@@ -156,8 +156,10 @@ for (const button of toggles) {
 
 // --- Colour groups ---
 
-const updateGroup = (index, change) =>
-  saveSettings((current) => ({ groups: current.groups.map((g, i) => (i === index ? change(g) : g)) }));
+// Matches by id, not row: a save queued before another page reorders or removes
+// groups still lands on the group it was started for, or on nothing.
+const updateGroup = (id, change) =>
+  saveSettings((current) => ({ groups: current.groups.map((g) => (g.id === id ? change(g) : g)) }));
 
 function select(index) {
   selected = index;
@@ -233,7 +235,7 @@ function renderChips({ list }, index) {
 
 function removeBranch(index, branch, position) {
   guard(
-    updateGroup(index, (g) => ({ ...g, branches: g.branches.filter((b) => b !== branch) })).then((saved) => {
+    updateGroup(settings.groups[index].id, (g) => ({ ...g, branches: g.branches.filter((b) => b !== branch) })).then((saved) => {
       update(saved);
       const { list, add } = rows[index];
       const buttons = list.querySelectorAll('button');
@@ -246,7 +248,8 @@ function wireBranchInput(index, add, input) {
   const commit = () => {
     const added = parseBranches(input.value);
     input.value = '';
-    if (added.length) guard(updateGroup(index, (g) => ({ ...g, branches: [...new Set([...g.branches, ...added])] })));
+    if (added.length)
+      guard(updateGroup(settings.groups[index].id, (g) => ({ ...g, branches: [...new Set([...g.branches, ...added])] })));
   };
   const close = () => {
     input.hidden = true;
@@ -290,7 +293,7 @@ addGroup.addEventListener('click', () => {
 });
 
 removeGroup.addEventListener('click', () => {
-  // A pending wheel save names its group by row, so it goes out before the rows shift.
+  // Send the pending colour first, so the removal does not discard it unsaved.
   flushWheel();
   const index = selected;
   guard(
@@ -314,7 +317,7 @@ const presetButtons = COLOR_PRESETS.map((preset) => {
   button.addEventListener('click', () => {
     // A preset is the latest choice, so it must not be overwritten by a wheel save still waiting.
     flushWheel();
-    guard(updateGroup(selected, (g) => ({ ...g, ...colours(preset) })));
+    guard(updateGroup(settings.groups[selected].id, (g) => ({ ...g, ...colours(preset) })));
   });
   presets.appendChild(button);
   return { preset, button };
@@ -359,9 +362,9 @@ let saveTimer = null;
 let pendingWheelSave = null;
 let dragging = false;
 function saveWheel(delay = 0) {
-  const index = selected;
+  const id = settings.groups[selected].id;
   clearTimeout(saveTimer);
-  pendingWheelSave = () => guard(updateGroup(index, (g) => ({ ...g, ...comboFor(wheelPos) })));
+  pendingWheelSave = () => guard(updateGroup(id, (g) => ({ ...g, ...comboFor(wheelPos) })));
   saveTimer = setTimeout(flushWheel, delay);
 }
 

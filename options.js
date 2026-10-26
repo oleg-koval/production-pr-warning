@@ -100,7 +100,7 @@ function renderGroups() {
   addGroup.hidden = draft.length >= MAX_GROUPS;
 }
 
-const toDraft = (group) => ({ text: group.branches.join('\n'), ...colours(group) });
+const toDraft = (group) => ({ id: group.id, text: group.branches.join('\n'), ...colours(group) });
 
 function fill(s) {
   draft = s.groups.map(toDraft);
@@ -128,7 +128,7 @@ addGroup.addEventListener('click', () => {
 form.addEventListener('submit', (event) => {
   event.preventDefault();
   saveSettings({
-    groups: draft.map((group) => ({ branches: parseBranches(group.text), ...colours(group) })),
+    groups: draft.map((group) => ({ id: group.id, branches: parseBranches(group.text), ...colours(group) })),
     tintEnabled: fields.tintEnabled.checked,
     showBlock: fields.showBlock.checked,
     highlightList: fields.highlightList.checked,

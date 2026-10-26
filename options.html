@@ -7,17 +7,14 @@
     <link rel="icon" href="icons/icon-32.png" />
     <style>
       :root { color-scheme: light dark; }
-      @media (prefers-color-scheme: light) {
-        .sub, .hint { color: #59636e; }
-      }
       body {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         max-width: 620px; margin: 40px auto; padding: 0 20px; line-height: 1.5;
       }
       h1 { font-size: 20px; margin-bottom: 4px; display: flex; align-items: center; gap: 10px; }
-      .sub { color: #8b949e; margin-top: 0; }
+      .sub { color: #59636e; margin-top: 0; }
       label, .heading { display: block; margin: 18px 0 6px; font-weight: 600; }
-      .hint { font-weight: 400; color: #8b949e; font-size: 13px; }
+      .hint { font-weight: 400; color: #59636e; font-size: 13px; }
       .hint code { font-size: 12px; background: color-mix(in srgb, #8b949e 22%, transparent); padding: 1px 5px; border-radius: 4px; }
       textarea {
         width: 100%; box-sizing: border-box; padding: 8px; font-size: 14px; min-height: 80px;
@@ -59,7 +56,8 @@
       .actions { display: flex; align-items: center; gap: 8px; margin-top: 24px; }
       #status { margin-left: 4px; color: #1f883d; font-weight: 600; }
       #status.error { color: #cf222e; }
-      @media (prefers-color-scheme: dark) { #status.error { color: #ff7b72; } }
+      @media (prefers-color-scheme: dark) { #status { color: #3fb950; } #status.error { color: #ff7b72; } }
+      @media (prefers-color-scheme: dark) { .sub, .hint { color: #8b949e; } }
     </style>
   </head>
   <body>
@@ -67,7 +65,7 @@
     <p class="sub">Warns you when a GitHub pull request targets a branch you care about.</p>
     <form id="form">
       <div class="heading" id="groups-label">Branches by colour
-        <span class="hint">Each colour has its own branches, one per line. <code>*</code> matches anything, e.g. <code>release/*</code>. If a branch is in two colours, the upper one wins. Wildcard patterns tint the page but are left out of the PR list block, because GitHub search has no wildcard for base branches. Light and dark follow your GitHub theme; the bar is the 4px stripe on top.</span>
+        <span class="hint">Each colour has its own branches, one per line. <code>*</code> matches anything, e.g. <code>release/*</code>. If a branch is in two colours, the upper one wins. Wildcard patterns tint the page but are left out of the PR list block and the PR list highlight, because GitHub search has no wildcard for base branches. Light and dark follow your GitHub theme; the bar is the 4px stripe on top.</span>
       </div>
       <div class="groups" id="groups" role="list" aria-labelledby="groups-label"></div>
       <button type="button" class="secondary add-group" id="add-group">+ Add another colour</button>

@@ -52,7 +52,11 @@ function normalizeSettings(raw) {
     tintEnabled: stored.tintEnabled ?? DEFAULT_SETTINGS.tintEnabled,
     showBlock: stored.showBlock ?? DEFAULT_SETTINGS.showBlock,
     highlightList: stored.highlightList ?? DEFAULT_SETTINGS.highlightList,
-    groups: groups.slice(0, MAX_GROUPS).map((g) => ({ branches: [...(g.branches ?? [])], ...colours({ ...DEFAULT_GROUP, ...g }) })),
+    groups: groups.slice(0, MAX_GROUPS).map((g, i) => ({
+      id: g.id ?? `legacy-${i}`,
+      branches: [...(g.branches ?? [])],
+      ...colours({ ...DEFAULT_GROUP, ...g }),
+    })),
   };
 }
 
@@ -119,7 +123,12 @@ const sameColours = (a, b) => a.bgLight === b.bgLight && a.bgDark === b.bgDark &
 // Groups have no names; the UI calls them by their preset colour.
 const colourName = (group) => COLOR_PRESETS.find((p) => sameColours(p, group))?.name.toLowerCase() ?? 'custom';
 
+// An id names a group for the life of the group. A save queued from one page can
+// then still find its group after another page reorders or removes groups.
+const newId = () => Math.random().toString(36).slice(2, 10);
+
 const newGroup = (groups) => ({
+  id: newId(),
   branches: [],
   ...colours(COLOR_PRESETS.find((p) => !groups.some((g) => sameColours(g, p))) ?? COLOR_PRESETS[0]),
 });
