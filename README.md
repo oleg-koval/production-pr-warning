@@ -93,7 +93,7 @@ To release, bump `version` in `manifest.json`, add its section to `CHANGELOG.md`
 git tag v1.6.0 && git push origin v1.6.0
 ```
 
-The Release workflow builds the zip, publishes the GitHub release and submits it to the Chrome Web Store for review. The store step needs four repository secrets: `CWS_CLIENT_ID`, `CWS_CLIENT_SECRET`, `CWS_REFRESH_TOKEN` and `CWS_PUBLISHER_ID` (see [Use the Chrome Web Store API](https://developer.chrome.com/docs/webstore/using-api)). Without them it skips the store with a warning.
+The Release workflow builds the zip, publishes the GitHub release and submits it to the Chrome Web Store for review. [RELEASING.md](RELEASING.md) covers the store secrets it needs and what to do when a step fails.
 
 The website lives in `docs/` and is served by GitHub Pages at [redline.olegkoval.com](https://redline.olegkoval.com).
 
