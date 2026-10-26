@@ -16,7 +16,7 @@
       }
       h1 { font-size: 20px; margin-bottom: 4px; display: flex; align-items: center; gap: 10px; }
       .sub { color: #8b949e; margin-top: 0; }
-      label { display: block; margin: 18px 0 6px; font-weight: 600; }
+      label, .heading { display: block; margin: 18px 0 6px; font-weight: 600; }
       .hint { font-weight: 400; color: #8b949e; font-size: 13px; }
       .hint code { font-size: 12px; background: color-mix(in srgb, #8b949e 22%, transparent); padding: 1px 5px; border-radius: 4px; }
       textarea {
@@ -29,13 +29,13 @@
       .colors { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
       .colors label { margin: 0 0 4px; font-size: 13px; }
       input[type='color'] { width: 100%; height: 34px; padding: 2px; border: 1px solid #d0d7de; border-radius: 6px; background: Field; cursor: pointer; }
-      .swatches { display: flex; gap: 8px; margin-top: 10px; }
+      .swatches { display: flex; flex-wrap: wrap; gap: 8px; }
       .swatch {
         padding: 6px 10px; font-size: 12px; font-weight: 500; cursor: pointer; color: #1f2328;
         border: 1px solid #d0d7de; border-top-width: 4px; border-radius: 6px;
       }
       .swatch:hover { border-color: #2f81f7; }
-      .preview { display: flex; gap: 12px; margin-top: 12px; }
+      .preview { display: flex; gap: 12px; }
       .preview div {
         flex: 1; padding: 10px 12px; font-size: 12px; border-radius: 6px;
         border: 1px solid #d0d7de; border-top-width: 4px;
@@ -47,44 +47,40 @@
         color: #fff; background: #1f883d; border: none; border-radius: 6px; cursor: pointer;
       }
       button.secondary { color: inherit; background: transparent; border: 1px solid #d0d7de; }
+      .groups { display: grid; gap: 12px; }
+      .group { display: flex; gap: 12px; padding: 12px 14px; border: 1px solid #d0d7de; border-radius: 8px; }
+      .group-main { flex: 1; min-width: 0; display: grid; gap: 10px; }
+      .group-main > label { margin: 0 0 -4px; font-size: 13px; }
+      .group-actions { display: flex; flex-direction: column; gap: 4px; }
+      button.icon { padding: 4px 8px; font-size: 13px; font-weight: 500; color: inherit; background: transparent; border: 1px solid #d0d7de; }
+      button.icon:disabled { opacity: 0.4; cursor: default; }
+      button.add-group { width: 100%; margin-top: 12px; border-style: dashed; color: #59636e; }
+      button.add-group[hidden] { display: none; }
       .actions { display: flex; align-items: center; gap: 8px; margin-top: 24px; }
       #status { margin-left: 4px; color: #1f883d; font-weight: 600; }
     </style>
   </head>
   <body>
     <h1><img src="icons/icon-128.png" width="28" height="28" alt="" />PR Redline</h1>
-    <p class="sub">Warns you when a GitHub pull request targets a protected branch.</p>
+    <p class="sub">Warns you when a GitHub pull request targets a branch you care about.</p>
     <form id="form">
-      <label for="branches">Protected branches
-        <span class="hint">One per line. <code>*</code> matches anything, e.g. <code>release/*</code>. Wildcard patterns tint the page but are left out of the PR list block, because GitHub search has no wildcard for base branches.</span>
-      </label>
-      <textarea id="branches" placeholder="main"></textarea>
-
-      <label>Background colour
-        <span class="hint">Light and dark follow your GitHub theme. The bar is the 4px stripe on top.</span>
-      </label>
-      <div class="colors">
-        <div><label for="bgLight">Light theme</label><input type="color" id="bgLight" /></div>
-        <div><label for="bgDark">Dark theme</label><input type="color" id="bgDark" /></div>
-        <div><label for="bar">Top bar</label><input type="color" id="bar" /></div>
+      <div class="heading" id="groups-label">Branches by colour
+        <span class="hint">Each colour has its own branches, one per line. <code>*</code> matches anything, e.g. <code>release/*</code>. If a branch is in two colours, the upper one wins. Wildcard patterns tint the page but are left out of the PR list block, because GitHub search has no wildcard for base branches. Light and dark follow your GitHub theme; the bar is the 4px stripe on top.</span>
       </div>
-      <div class="swatches" id="swatches"></div>
-      <div class="preview">
-        <div class="light" id="previewLight">Light theme preview</div>
-        <div class="dark" id="previewDark">Dark theme preview</div>
-      </div>
+      <div class="groups" id="groups" role="list" aria-labelledby="groups-label"></div>
+      <button type="button" class="secondary add-group" id="add-group">+ Add another colour</button>
 
       <div class="row">
         <input type="checkbox" id="tintEnabled" />
-        <label for="tintEnabled">Tint PR pages that target a protected branch</label>
+        <label for="tintEnabled">Tint PR pages that target one of your branches</label>
       </div>
       <div class="row">
         <input type="checkbox" id="showBlock" />
-        <label for="showBlock">Show the block listing other open PRs into protected branches</label>
+        <label for="showBlock">Show the block listing other open PRs in the same colour</label>
       </div>
       <div class="row">
         <input type="checkbox" id="highlightList" />
-        <label for="highlightList">Highlight PRs into protected branches on the pull request list</label>
+        <label for="highlightList">Highlight PRs into your branches on the pull request list</label>
       </div>
 
       <div class="actions">

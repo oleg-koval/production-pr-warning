@@ -4,9 +4,9 @@
 const root = document.documentElement;
 const statusCard = document.getElementById('status');
 const toggles = [...document.querySelectorAll('[data-setting]')];
-const branchList = document.getElementById('branches');
-const addBranch = document.getElementById('add-branch');
-const branchInput = document.getElementById('branch-input');
+const groupsEl = document.getElementById('groups');
+const addGroup = document.getElementById('add-group');
+const removeGroup = document.getElementById('remove-group');
 const presets = document.getElementById('presets');
 const custom = document.getElementById('custom');
 const picker = document.getElementById('picker');
@@ -14,6 +14,10 @@ const wheel = document.getElementById('wheel');
 const knob = document.getElementById('knob');
 
 let settings = { ...DEFAULT_SETTINGS };
+// The colour group whose colour the swatches and wheel edit. Until the user
+// picks one, it follows the group the current tab merges into.
+let selected = 0;
+let followTab = true;
 
 // --- Colour maths. Storage and the options page work in hex. ---
 
@@ -72,7 +76,7 @@ async function refreshStatus() {
   let state = null;
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    state = await chrome.tabs.sendMessage(tab.id, { type: 'redline:state', branches: settings.branches });
+    state = await chrome.tabs.sendMessage(tab.id, { type: 'redline:state', groups: settings.groups });
   } catch {
     // No content script answered: not a github.com tab, or it loaded before the extension.
   }
@@ -89,13 +93,23 @@ function renderStatus(state) {
     rows.push(el('div', 'v', 'Reading the base branch…'), el('div', 'k', state.repo));
     rows[0].style.fontSize = '13px';
   } else {
-    calm = !branchMatches(state.base, settings.branches);
+    const group = groupFor(state.base, settings.groups);
+    calm = !group;
     const value = el('div', 'v');
-    value.append(el('code', '', state.base), calm ? 'not protected' : 'protected');
+    value.append(el('code', '', state.base), group ? `${colourName(group)} group` : 'no colour');
     const details = [state.kind === 'pull' ? `${state.repo} #${state.number}` : state.repo];
     if (state.done) details.push('merged or closed');
-    if (!calm && state.others !== undefined) {
-      details.push(`${state.others} more open PR${state.others === 1 ? '' : 's'} into protected branches`);
+    if (group && state.others !== undefined) {
+      details.push(`${state.others} more open PR${state.others === 1 ? '' : 's'} into ${colourName(group)} branches`);
+    }
+    if (group) {
+      statusCard.style.setProperty('--tint-light', group.bgLight);
+      statusCard.style.setProperty('--tint-dark', group.bgDark);
+      statusCard.style.setProperty('--bar', group.bar);
+    }
+    if (group && followTab) {
+      followTab = false;
+      select(settings.groups.indexOf(group));
     }
     rows.push(
       el('div', 'k', state.kind === 'pull' ? 'This pull request merges into' : 'This new pull request would merge into'),
@@ -116,68 +130,142 @@ for (const button of toggles) {
   });
 }
 
-// --- Protected branches ---
+// --- Colour groups ---
 
-// Rebuilt only when the list changes, so focus survives the storage echo.
-function renderBranches() {
-  const key = settings.branches.join('\n');
-  if (branchList.dataset.key === key) return;
-  branchList.dataset.key = key;
-  branchList.replaceChildren(
-    ...settings.branches.map((branch, index) => {
+const updateGroup = (index, change) =>
+  saveSettings((current) => ({ groups: current.groups.map((g, i) => (i === index ? change(g) : g)) }));
+
+function select(index) {
+  selected = index;
+  apply(settings);
+}
+
+let rows = [];
+
+// Rows are rebuilt only when a group is added, removed, recoloured or selected;
+// chips are refreshed in place, so an open branch input keeps its focus.
+function renderGroups() {
+  const shape = JSON.stringify([selected, settings.groups.map(colours)]);
+  if (groupsEl.dataset.shape !== shape) {
+    groupsEl.dataset.shape = shape;
+    rows = settings.groups.map(buildRow);
+    groupsEl.replaceChildren(...rows.map((r) => r.row));
+  }
+  rows.forEach((r, index) => renderChips(r, index));
+  addGroup.hidden = settings.groups.length >= MAX_GROUPS;
+  removeGroup.hidden = settings.groups.length < 2;
+}
+
+function buildRow(group, index) {
+  const name = colourName(group);
+  const row = el('div', 'group');
+  row.setAttribute('role', 'listitem');
+  row.setAttribute('aria-current', String(index === selected));
+  const swatch = el('button', 'swatch');
+  swatch.type = 'button';
+  swatch.title = `Edit the ${name} colour`;
+  swatch.setAttribute('aria-label', swatch.title);
+  swatch.style.setProperty('--l', group.bgLight);
+  swatch.style.setProperty('--d', group.bgDark);
+  swatch.style.setProperty('--b', group.bar);
+  swatch.addEventListener('click', () => {
+    followTab = false;
+    select(index);
+  });
+  const list = el('ul');
+  const add = el('button', 'add', '+ add');
+  add.type = 'button';
+  const input = el('input');
+  input.hidden = true;
+  input.placeholder = 'release/*';
+  input.spellcheck = false;
+  input.autocomplete = 'off';
+  input.setAttribute('aria-label', `New branch for the ${name} colour`);
+  const chips = el('div', 'chips');
+  chips.append(list, add, input);
+  row.append(swatch, chips);
+  wireBranchInput(index, add, input);
+  return { row, list, add };
+}
+
+function renderChips({ list }, index) {
+  const { branches } = settings.groups[index];
+  const key = branches.join('\n');
+  if (list.dataset.key === key) return;
+  list.dataset.key = key;
+  list.replaceChildren(
+    ...branches.map((branch, position) => {
       const item = el('li');
       const remove = el('button', '', '×');
       remove.type = 'button';
       remove.setAttribute('aria-label', `Remove ${branch}`);
       remove.title = `Remove ${branch}`;
-      remove.addEventListener('click', () => removeBranch(branch, index));
+      remove.addEventListener('click', () => removeBranch(index, branch, position));
       item.append(el('code', '', branch), remove);
       return item;
     }),
   );
 }
 
-function removeBranch(branch, index) {
-  saveSettings({ branches: settings.branches.filter((b) => b !== branch) }).then((saved) => {
+function removeBranch(index, branch, position) {
+  updateGroup(index, (g) => ({ ...g, branches: g.branches.filter((b) => b !== branch) })).then((saved) => {
     update(saved);
-    const buttons = branchList.querySelectorAll('button');
-    (buttons[Math.min(index, buttons.length - 1)] ?? addBranch).focus();
+    const { list, add } = rows[index];
+    const buttons = list.querySelectorAll('button');
+    (buttons[Math.min(position, buttons.length - 1)] ?? add).focus();
   });
 }
 
-function openBranchInput() {
-  addBranch.hidden = true;
-  branchInput.hidden = false;
-  branchInput.value = '';
-  branchInput.focus();
+function wireBranchInput(index, add, input) {
+  const commit = () => {
+    const added = parseBranches(input.value);
+    input.value = '';
+    if (added.length) updateGroup(index, (g) => ({ ...g, branches: [...new Set([...g.branches, ...added])] }));
+  };
+  const close = () => {
+    input.hidden = true;
+    add.hidden = false;
+  };
+  add.addEventListener('click', () => {
+    add.hidden = true;
+    input.hidden = false;
+    input.value = '';
+    input.focus();
+  });
+  input.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      // Stay open after Enter so several branches can go in one go.
+      commit();
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      input.value = '';
+      close();
+      add.focus();
+    }
+  });
+  input.addEventListener('blur', () => {
+    if (input.hidden) return;
+    commit();
+    close();
+  });
 }
 
-function closeBranchInput({ commit }) {
-  const added = commit ? parseBranches(branchInput.value) : [];
-  branchInput.value = '';
-  if (added.length) saveSettings({ branches: [...new Set([...settings.branches, ...added])] });
-  return added.length;
-}
-
-addBranch.addEventListener('click', openBranchInput);
-branchInput.addEventListener('keydown', (event) => {
-  if (event.key === 'Enter') {
-    event.preventDefault();
-    // Stay open after Enter so several branches can go in one go.
-    closeBranchInput({ commit: true });
-  } else if (event.key === 'Escape') {
-    event.preventDefault();
-    closeBranchInput({ commit: false });
-    branchInput.hidden = true;
-    addBranch.hidden = false;
-    addBranch.focus();
-  }
+addGroup.addEventListener('click', () => {
+  saveSettings((current) => ({ groups: [...current.groups, newGroup(current.groups)] })).then((saved) => {
+    followTab = false;
+    selected = saved.groups.length - 1;
+    update(saved);
+    rows[selected].add.click();
+  });
 });
-branchInput.addEventListener('blur', () => {
-  if (branchInput.hidden) return;
-  closeBranchInput({ commit: true });
-  branchInput.hidden = true;
-  addBranch.hidden = false;
+
+removeGroup.addEventListener('click', () => {
+  const index = selected;
+  saveSettings((current) => ({ groups: current.groups.filter((_, i) => i !== index) })).then((saved) => {
+    selected = Math.max(0, index - 1);
+    update(saved);
+  });
 });
 
 // --- Colours: presets and the wheel ---
@@ -190,17 +278,12 @@ const presetButtons = COLOR_PRESETS.map((preset) => {
   button.style.setProperty('--l', preset.bgLight);
   button.style.setProperty('--d', preset.bgDark);
   button.style.setProperty('--b', preset.bar);
-  button.addEventListener('click', () => {
-    const { bgLight, bgDark, bar } = preset;
-    saveSettings({ bgLight, bgDark, bar });
-  });
+  button.addEventListener('click', () => updateGroup(selected, (g) => ({ ...g, ...colours(preset) })));
   presets.appendChild(button);
   return { preset, button };
 });
 
-const sameColours = (a, b) => a.bgLight === b.bgLight && a.bgDark === b.bgDark && a.bar === b.bar;
-
-let wheelPos = wheelFromBar(DEFAULT_SETTINGS.bar);
+let wheelPos = wheelFromBar(DEFAULT_GROUP.bar);
 
 // Paints a colour combo everywhere in the popup without saving it.
 function showColours(colours) {
@@ -238,10 +321,12 @@ function previewWheel() {
 let saveTimer = null;
 let dragging = false;
 function saveWheel(delay = 0) {
+  const index = selected;
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
     saveTimer = null;
-    saveSettings(comboFor(wheelPos));
+    const combo = comboFor(wheelPos);
+    updateGroup(index, (g) => ({ ...g, ...combo }));
   }, delay);
 }
 
@@ -298,20 +383,22 @@ custom.addEventListener('click', () => {
 // --- Wiring ---
 
 function apply(next) {
-  const branchesChanged = next.branches.join('\n') !== settings.branches.join('\n');
+  const groupsChanged = JSON.stringify(next.groups) !== JSON.stringify(settings.groups);
   settings = next;
+  selected = Math.min(selected, settings.groups.length - 1);
   for (const button of toggles) button.setAttribute('aria-pressed', String(settings[button.dataset.setting]));
-  renderBranches();
+  renderGroups();
   // While the wheel is moving, an older save echoing back must not pull it back.
-  if (dragging || saveTimer !== null) return branchesChanged;
+  if (dragging || saveTimer !== null) return groupsChanged;
+  const group = settings.groups[selected];
   // Keep the knob where the user put it unless the colours came from elsewhere.
-  if (comboFor(wheelPos).bar !== settings.bar) wheelPos = wheelFromBar(settings.bar);
+  if (comboFor(wheelPos).bar !== group.bar) wheelPos = wheelFromBar(group.bar);
   placeKnob();
-  showColours(settings);
-  return branchesChanged;
+  showColours(group);
+  return groupsChanged;
 }
 
-// The status card only depends on the branch list.
+// The status card only depends on the colour groups.
 function update(next) {
   if (apply(next)) refreshStatus();
 }
