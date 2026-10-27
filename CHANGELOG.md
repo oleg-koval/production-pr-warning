@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.6.0 (2026-10-27)
+
+### Added
+
+- The sidebar "Open PRs into …" block has an **Agent prompt** drawer at the
+  bottom. It holds a ready-made prompt that lists the open PRs into those
+  branches and asks a coding agent (Claude Code, Codex or similar) to bring
+  each branch up to date, resolve conflicts, fix the tests and push, without
+  merging anything. **Copy prompt** puts it on the clipboard. Drafts are left
+  out unless you tick **Include drafts**.
+
 ## 1.5.1 (2026-10-26)
 
 ### Fixed

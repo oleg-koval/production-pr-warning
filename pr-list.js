@@ -107,6 +107,115 @@ function render(block, state, ctx) {
   const more = el('a', 'ghrl-more', state.kind === 'ready' && state.data.total > MAX_ROWS ? 'View all in PR list' : 'Open in PR list');
   more.href = listUrl(ctx.repo, ctx.branches);
   body.appendChild(more);
+  if (state.kind === 'ready' && state.data.prs.length > 0) body.appendChild(buildDrawer(ctx, state.data));
+}
+
+const PROMPT_STEPS = [
+  'For each pull request, one at a time:',
+  '1. Check out its head branch.',
+  '2. Merge the latest base branch into it. Do not rebase, never force-push.',
+  '3. Resolve conflicts, keeping the intent of both sides. If a conflict needs a product decision, stop on that PR and say why.',
+  "4. Run the project's tests and linters, and fix failures the update caused.",
+  '5. Push the branch and wait for its checks.',
+  '',
+  'Do not merge, approve, close or retarget any pull request.',
+  '',
+  'When done, reply with a table: PR, ready or blocked, what you changed, and why it is blocked. Then suggest a merge order, and list PRs that change the same files: merging one can make the others conflict again.',
+];
+
+const joinOr = (items) => (items.length < 2 ? items.join('') : `${items.slice(0, -1).join(', ')} or ${items.at(-1)}`);
+
+const promptPrs = (data, includeDrafts) => data.prs.filter((pr) => includeDrafts || !pr.draft);
+
+// The current PR stays in the prompt: the point is to get every PR into these branches mergeable.
+// Only the first page of the search is parsed, so a longer list hands the agent the query instead of dropping PRs.
+function agentPrompt(ctx, data, includeDrafts) {
+  const prs = promptPrs(data, includeDrafts);
+  const lines = [
+    `Repository: github.com/${ctx.repo}`,
+    `${prs.length === 1 ? 'This open pull request merges' : `These ${prs.length} open pull requests merge`} into ${joinOr(ctx.branches)}:`,
+    '',
+    ...prs.map((pr) => `- #${pr.number} ${pr.title}`),
+  ];
+  if (data.totalPages > 1) {
+    const query = `${listQuery(ctx.branches)}${includeDrafts ? '' : ' draft:false'}`;
+    lines.push('', `That is the first page of ${data.total}. List all of them with: gh pr list --repo ${ctx.repo} --limit 500 --search "${query}"`);
+  }
+  return [...lines, '', ...PROMPT_STEPS].join('\n');
+}
+
+const CHEVRON = '<svg class="ghrl-chev" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M12.78 5.22a.749.749 0 0 1 0 1.06l-4.25 4.25a.749.749 0 0 1-1.06 0L3.22 6.28a.749.749 0 1 1 1.06-1.06L8 8.939l3.72-3.719a.749.749 0 0 1 1.06 0Z"/></svg>';
+
+// Copy only: the prompt goes to the clipboard on a click, so the drawer needs no permission and makes no request.
+function buildDrawer(ctx, data) {
+  const drawer = el('div', 'ghrl-drawer');
+  const toggle = el('button', 'ghrl-drawer-toggle');
+  toggle.type = 'button';
+  toggle.setAttribute('aria-expanded', 'false');
+  toggle.append(el('span', '', 'Agent prompt'), el('small', 'ghrl-drawer-count'));
+  toggle.insertAdjacentHTML('beforeend', CHEVRON);
+
+  const pre = el('pre', 'ghrl-prompt');
+  pre.tabIndex = 0;
+  const copy = el('button', 'ghrl-copy', 'Copy prompt');
+  copy.type = 'button';
+  const actions = el('div', 'ghrl-drawer-actions');
+  actions.appendChild(copy);
+  const drafts = el('input', '');
+  drafts.type = 'checkbox';
+  if (data.prs.some((pr) => pr.draft)) {
+    const label = el('label', 'ghrl-drafts');
+    label.append(drafts, ' Include drafts');
+    actions.appendChild(label);
+  }
+
+  const panelBody = el('div', 'ghrl-drawer-body');
+  panelBody.append(
+    el('p', 'ghrl-drawer-note', 'Paste into Claude Code, Codex or any agent with repo access. It brings every branch up to date and stops short of merging.'),
+    pre,
+    actions,
+  );
+  const inner = el('div', 'ghrl-drawer-inner');
+  inner.appendChild(panelBody);
+  const panel = el('div', 'ghrl-drawer-panel');
+  panel.appendChild(inner);
+  drawer.append(toggle, panel);
+
+  const refresh = () => {
+    const count = promptPrs(data, drafts.checked).length;
+    pre.textContent = agentPrompt(ctx, data, drafts.checked);
+    toggle.querySelector('.ghrl-drawer-count').textContent = data.totalPages > 1 ? `update all ${data.total}` : `update all ${count}`;
+    copy.disabled = count === 0 && data.totalPages <= 1;
+  };
+  let reset;
+  const showCopied = (text, done) => {
+    copy.textContent = text;
+    copy.classList.toggle('ghrl-copy--done', done);
+    clearTimeout(reset);
+    reset = setTimeout(() => {
+      copy.textContent = 'Copy prompt';
+      copy.classList.remove('ghrl-copy--done');
+    }, 2000);
+  };
+
+  toggle.addEventListener('click', () => {
+    const open = !drawer.classList.contains('ghrl-drawer--open');
+    drawer.classList.toggle('ghrl-drawer--open', open);
+    toggle.setAttribute('aria-expanded', String(open));
+  });
+  drafts.addEventListener('change', refresh);
+  copy.addEventListener('click', () => {
+    navigator.clipboard.writeText(pre.textContent).then(
+      () => showCopied('Copied ✓', true),
+      () => {
+        // The clipboard can be refused; selecting the text leaves a one-key copy.
+        getSelection().selectAllChildren(pre);
+        showCopied('Press Ctrl+C or ⌘C', false);
+      },
+    );
+  });
+  refresh();
+  return drawer;
 }
 
 // The branches are part of the key: the same PR can move to another colour's base.
