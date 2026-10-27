@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.6.0 (2026-10-27)
+
+### Added
+
+- The sidebar "Open PRs into …" block has an **Agent prompt** drawer at the
+  bottom. It holds a ready-made prompt that lists the open PRs into those
+  branches and asks a coding agent (Claude Code, Codex or similar) to bring
+  each branch up to date, resolve conflicts, fix the tests and push, without
+  merging anything. Tabs pick **Claude**, **Codex** or **OpenCode**, and copy a terminal
+  command that opens that agent with the prompt loaded; **Prompt** copies the
+  plain text for any other agent. The last tab picked is remembered. Drafts
+  are left out unless you tick **Include drafts**. The prompt tells the agent to treat
+  PR titles as labels, not instructions, and to skip any PR that has closed or
+  changed base since the page loaded.
+
+<img src="https://redline.olegkoval.com/shots/05-agent-detail.webp" width="360" alt="The Agent prompt drawer open on the Claude tab, under the list of open PRs into main">
+
 ## 1.5.1 (2026-10-26)
 
 ### Fixed
