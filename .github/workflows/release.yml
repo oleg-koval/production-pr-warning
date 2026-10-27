@@ -1,24 +1,60 @@
 name: Release
 
-# Pushing a tag like v1.6.0 builds the zip, attaches it to a GitHub release and submits it to the
-# Chrome Web Store. The tag must match manifest.json, because the store rejects a reused version.
+# Merging a version bump in manifest.json into main tags it (v1.6.1), builds the zip, attaches it to
+# a GitHub release and submits it to the Chrome Web Store. Pushing a tag by hand still works too.
+# The tag must match manifest.json, because the store rejects a reused version.
 on:
   push:
+    branches: [main]
+    paths: [manifest.json]
     tags: ['v*']
 
 permissions:
   contents: write
 
-# One group for all tags: every run uploads to the same store item.
+# One group for all runs: every run uploads to the same store item.
 concurrency:
   group: release
 
 jobs:
+  tag:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      tag: ${{ steps.pick.outputs.tag }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # On main, a manifest.json change that is not a new version (or a version already tagged)
+      # releases nothing. A tag pushed with the workflow token starts no second run.
+      - name: Pick the tag
+        id: pick
+        run: |
+          if [ "$GITHUB_REF_TYPE" = tag ]; then
+            echo "tag=$GITHUB_REF_NAME" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          tag="v$(jq -r .version manifest.json)"
+          if [ -n "$(git ls-remote --tags origin "refs/tags/$tag")" ]; then
+            echo "$tag already exists, nothing to release"
+            exit 0
+          fi
+          # Checked before tagging, so a missing section leaves no tag behind and a fixed merge retries.
+          if ! awk -v h="## ${tag#v} " -f scripts/release-notes.awk CHANGELOG.md | grep -q '[^[:space:]]'; then
+            echo "::error::CHANGELOG.md has no section for ${tag#v}"
+            exit 1
+          fi
+          git tag "$tag" "$GITHUB_SHA"
+          git push origin "$tag"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
   release:
+    needs: tag
+    if: needs.tag.outputs.tag != ''
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      TAG: ${{ github.ref_name }}
+      TAG: ${{ needs.tag.outputs.tag }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

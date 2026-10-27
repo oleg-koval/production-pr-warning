@@ -89,13 +89,7 @@ Load the repository folder with **Load unpacked**. After editing files, click th
 ./scripts/package.sh   # builds dist/pr-redline-<version>.zip for the Chrome Web Store
 ```
 
-To release, bump `version` in `manifest.json`, add its section to `CHANGELOG.md`, merge, then tag `main`:
-
-```bash
-git tag v1.6.1 && git push origin v1.6.1
-```
-
-The Release workflow builds the zip, publishes the GitHub release and submits it to the Chrome Web Store for review. [RELEASING.md](RELEASING.md) covers the store secrets it needs and what to do when a step fails.
+To release, bump `version` in `manifest.json`, add its section to `CHANGELOG.md` and merge. The merge into `main` tags the version, and the Release workflow builds the zip, publishes the GitHub release and submits it to the Chrome Web Store for review. [RELEASING.md](RELEASING.md) covers the store secrets it needs and what to do when a step fails.
 
 The website lives in `docs/` and is served by GitHub Pages at [redline.olegkoval.com](https://redline.olegkoval.com).
 
