@@ -52,9 +52,7 @@ jobs:
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" "$ZIP" --clobber
           else
-            # Release notes render every newline as a hard break, so join each
-            # wrapped continuation line in CHANGELOG.md back onto its bullet.
-            awk -v h="## ${TAG#v} " 'index($0, h) == 1 {p = 1; next} /^## / {p = 0} !p {next} /^  +[^ ]/ && n {sub(/^ +/, ""); buf[n] = buf[n] " " $0; next} {buf[++n] = $0} END {for (i = 1; i <= n; i++) print buf[i]}' CHANGELOG.md > notes.md
+            awk -v h="## ${TAG#v} " -f scripts/release-notes.awk CHANGELOG.md > notes.md
             if ! grep -q '[^[:space:]]' notes.md; then
               echo "::error::CHANGELOG.md has no section for ${TAG#v}"
               exit 1
