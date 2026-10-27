@@ -52,7 +52,7 @@ jobs:
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" "$ZIP" --clobber
           else
-            awk -v h="## ${TAG#v} " 'index($0, h) == 1 {p = 1; next} /^## / {p = 0} p' CHANGELOG.md > notes.md
+            awk -v h="## ${TAG#v} " -f scripts/release-notes.awk CHANGELOG.md > notes.md
             if ! grep -q '[^[:space:]]' notes.md; then
               echo "::error::CHANGELOG.md has no section for ${TAG#v}"
               exit 1
