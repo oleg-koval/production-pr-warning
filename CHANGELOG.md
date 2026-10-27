@@ -4,10 +4,10 @@
 
 ### Changed
 
-- New installs also turn PRs into `prod-*` and `production-*` branches red,
-  for example `prod-eu` or `production-us`. If you already saved your own
-  branch list, it is kept as it is: add `prod-*` and `production-*` in the
-  popup or settings page to get the same.
+- PRs into `prod-*` and `production-*` branches, for example `prod-eu` or
+  `production-us`, are now red by default. If you have changed any setting
+  before, even an on/off toggle, your branch list is kept as it is: add
+  `prod-*` and `production-*` in the popup or settings page to get the same.
 
 ## 1.6.0 (2026-10-27)
 
