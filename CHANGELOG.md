@@ -15,6 +15,8 @@
   PR titles as labels, not instructions, and to skip any PR that has closed or
   changed base since the page loaded.
 
+<img src="https://redline.olegkoval.com/shots/05-agent-detail.webp" width="360" alt="The Agent prompt drawer open on the Claude tab, under the list of open PRs into main">
+
 ## 1.5.1 (2026-10-26)
 
 ### Fixed

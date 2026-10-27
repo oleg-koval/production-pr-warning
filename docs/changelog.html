@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PR Redline changelog</title>
+    <meta name="description" content="What changed in each version of PR Redline, the Chrome extension that colours GitHub pull requests by their base branch." />
+    <link rel="icon" href="favicon.png" />
+    <style>
+      :root {
+        color-scheme: light dark;
+        --fg: #1f2328; --muted: #59636e; --border: #d0d7de; --canvas: #ffffff; --subtle: #f6f8fa; --accent: #0969da;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root { --fg: #e6edf3; --muted: #8b949e; --border: #30363d; --canvas: #0d1117; --subtle: #161b22; --accent: #2f81f7; }
+      }
+      body { margin: 0; background: var(--canvas); color: var(--fg); font: 16px/1.6 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+      .wrap { max-width: 720px; margin: 0 auto; padding: 40px 20px 64px; }
+      a { color: var(--accent); }
+      h1 { font-size: 32px; line-height: 1.15; margin: 24px 0 8px; }
+      h2 { font-size: 22px; margin: 40px 0 0; padding-top: 24px; border-top: 1px solid var(--border); }
+      h2 small { font-size: 14px; font-weight: 400; color: var(--muted); margin-left: 8px; }
+      h3 { font-size: 15px; margin: 16px 0 4px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+      p, li { color: var(--fg); }
+      .muted { color: var(--muted); }
+      code { font: 0.9em ui-monospace, SFMono-Regular, Menlo, monospace; padding: 1px 6px; border-radius: 6px; background: var(--subtle); border: 1px solid var(--border); }
+      figure { margin: 16px 0 0; }
+      figure img { display: block; max-width: 100%; height: auto; border: 1px solid var(--border); border-radius: 8px; }
+      figcaption { margin-top: 6px; font-size: 14px; color: var(--muted); }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <a href="./">PR Redline</a>
+      <h1>Changelog</h1>
+      <p class="muted">What changed in each version. Downloads are on <a href="https://github.com/oleg-koval/production-pr-warning/releases">GitHub releases</a>.</p>
+
+      <h2 id="1.6.0">1.6.0 <small>27 October 2026</small></h2>
+      <h3>Added</h3>
+      <ul>
+        <li>The sidebar "Open PRs into …" block has an <strong>Agent prompt</strong> drawer at the bottom. It holds a ready-made prompt that lists the open PRs into those branches and asks a coding agent (Claude Code, Codex or similar) to bring each branch up to date, resolve conflicts, fix the tests and push, without merging anything. Tabs pick <strong>Claude</strong>, <strong>Codex</strong> or <strong>OpenCode</strong>, and copy a terminal command that opens that agent with the prompt loaded; <strong>Prompt</strong> copies the plain text for any other agent. The last tab picked is remembered. Drafts are left out unless you tick <strong>Include drafts</strong>. The prompt tells the agent to treat PR titles as labels, not instructions, and to skip any PR that has closed or changed base since the page loaded.</li>
+      </ul>
+      <figure>
+        <img src="shots/05-agent-detail.webp" width="360" height="788" alt="The Agent prompt drawer open on the Claude tab, under the list of open PRs into main" />
+        <figcaption>The drawer on a pull request into <code>main</code>, with the Claude tab picked.</figcaption>
+      </figure>
+
+      <h2 id="1.5.1">1.5.1 <small>26 October 2026</small></h2>
+      <h3>Fixed</h3>
+      <ul>
+        <li>A PR whose base branch was changed (for example a stacked PR that GitHub moved to <code>main</code> after its parent merged) took the colour of the old base branch from the timeline, instead of the branch it merges into now.</li>
+      </ul>
+
+      <h2 id="1.5.0">1.5.0 <small>26 October 2026</small></h2>
+      <h3>Added</h3>
+      <ul>
+        <li>Colour groups. Each colour has its own list of branches, so PRs into <code>production</code> can be red, PRs into <code>staging</code> green, and PRs into <code>release/*</code> blue. You can have up to 8 colours. If a branch is in two colours, the upper one wins.</li>
+        <li>The PR list highlight and the sidebar "other open PRs" block work per colour: each row and each list uses the colour of its base branch.</li>
+        <li>Popup: branches are grouped by colour. You can add or remove a colour, and pick a preset or a custom colour for the selected row.</li>
+        <li>Settings page: one card per colour, with its own branches, colours and preview. Cards can be moved up and down.</li>
+        <li>New presets: Green and Blue.</li>
+      </ul>
+      <h3>Changed</h3>
+      <ul>
+        <li>Popup: the three on/off toggles now say what they do ("Tint PR pages", "Other open PRs", "Mark PR lists"), each with a one-line description.</li>
+        <li>Popup: on a repo's Pull requests tab it says how many PRs on the page are marked, instead of "Not a pull request page". When it can't reach the tab (opened before the extension was installed or updated), it says to reload the tab.</li>
+        <li>Settings created in 1.4 become the first colour group, so an upgrade changes nothing on screen. The first group is also written back to the 1.4 keys, so an older version on another synced browser keeps working.</li>
+      </ul>
+
+      <h2 id="1.4.0">1.4.0 <small>19 October 2026</small></h2>
+      <ul>
+        <li>First Chrome Web Store release. It tints pull requests into protected branches, marks them on the PR list, lists other open PRs into protected branches in the sidebar, and adds a toolbar popup and a settings page.</li>
+      </ul>
+
+      <p class="muted">PR Redline is not affiliated with or endorsed by GitHub, Inc.</p>
+    </div>
+  </body>
+</html>
