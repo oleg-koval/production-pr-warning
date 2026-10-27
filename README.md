@@ -44,9 +44,11 @@ PR Redline makes the target impossible to miss. It needs no token, no account an
 
 ## How it works
 
-| Pull request list | Toolbar popup | Settings |
-| --- | --- | --- |
-| ![PR list with protected-base PRs marked](store/screenshots/02-list.png) | ![Toolbar popup](store/screenshots/03-popup.png) | ![Settings page](store/screenshots/04-options.png) |
+| Pull request list | Toolbar popup |
+| --- | --- |
+| ![PR list with protected-base PRs marked](store/screenshots/02-list.png) | ![Toolbar popup](store/screenshots/03-popup.png) |
+| **Settings** | **Agent prompt** |
+| ![Settings page](store/screenshots/04-options.png) | ![The Agent prompt drawer in the PR sidebar, open on the Claude tab](store/screenshots/05-agent.png) |
 
 1. A content script runs on `github.com` only and reads the base branch from the pull request or compare page.
 2. If the base matches a branch in one of your colours, it tints the page in that colour. The first matching colour wins.
