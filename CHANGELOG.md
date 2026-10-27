@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.6.1 (2026-10-27)
+
+### Changed
+
+- PRs into `prod-*` and `production-*` branches, for example `prod-eu` or
+  `production-us`, are now red by default. If you have changed any setting
+  before, even an on/off toggle, your branch list is kept as it is: add
+  `prod-*` and `production-*` in the popup or settings page to get the same.
+
 ## 1.6.0 (2026-10-27)
 
 ### Added

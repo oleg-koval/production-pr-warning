@@ -1,26 +1,22 @@
 # Releasing PR Redline
 
-A release is a version tag on `main`. Pushing the tag builds the zip, publishes the GitHub release and submits the same zip to the Chrome Web Store for review.
+A release is a version tag on `main`. Merging a new `version` in `manifest.json` into `main` creates the tag, builds the zip, publishes the GitHub release and submits the same zip to the Chrome Web Store for review.
 
 ## Release a version
 
 1. On a branch, bump `version` in `manifest.json` and add a `## <version> (<date>)` section to `CHANGELOG.md`. The release notes are taken from that section.
-2. Open a pull request and merge it into `main`.
-3. Tag the merge commit and push the tag:
+2. Open a pull request and merge it into `main`. The merge starts the **Release** run, which tags the merge commit `v<version>`.
+3. Watch the run in the Actions tab. When it is green, the store step summary says `Submitted for review, state PENDING_REVIEW`. Users get the update automatically once Google's review passes.
 
-   ```bash
-   git switch main && git pull --ff-only
-   git tag v1.6.0 && git push origin v1.6.0
-   ```
+A `manifest.json` change that keeps the same version, or a version that is already tagged, releases nothing. If `CHANGELOG.md` has no section for the new version, the run fails before tagging; add the section in a new pull request and the merge tries again.
 
-4. Watch the **Release** run in the Actions tab. When it is green, the store step summary says `Submitted for review, state PENDING_REVIEW`. Users get the update automatically once Google's review passes.
-
-Tag only after the pull request is merged. The workflow refuses a tag that is not on `main` or that does not match `manifest.json`.
+Pushing a tag by hand still works, for example to release a commit the automatic run skipped. The workflow refuses a tag that is not on `main` or that does not match `manifest.json`.
 
 ## What the workflow checks
 
 | Step | Fails when |
 | --- | --- |
+| Pick the tag | A merge changes `manifest.json` to a new version but `CHANGELOG.md` has no section for it. Nothing is tagged. |
 | Check the tag is on main | The tag points at a commit that is not on `main`, for example a tag pushed before the PR was merged. |
 | Check the tag matches manifest.json | Tag `v1.6.0` but `manifest.json` says something else. The store never accepts the same version twice. |
 | Publish the GitHub release | `CHANGELOG.md` has no section for the version. |

@@ -40,7 +40,7 @@ PR Redline makes the target impossible to miss. It needs no token, no account an
 | **Marked PR list** | On the repository's pull request list, each PR into one of your branches gets its colour's tint, left edge and a badge. |
 | **Everything else in flight** | The PR sidebar lists the other open PRs into branches of the same colour, with a link to the full list. Its **Agent prompt** drawer copies a ready-to-run `claude`, `codex` or `opencode` command, or the plain prompt for any other agent. The prompt asks the agent to update every one of those branches and resolve conflicts, so they are ready to merge. |
 | **Toolbar popup** | Shows what the current PR merges into and which colour it got, and lets you edit branches and colours in place. |
-| **Colour groups** | Up to 8 colours, each with its own branch list. The default is red for `main`, `master`, `prod` and `production`. Add green for `staging`, blue for `release/*`, and so on. Light and dark GitHub themes are both supported. |
+| **Colour groups** | Up to 8 colours, each with its own branch list. The default is red for `main`, `master`, `prod`, `production` and any `prod-*` or `production-*` branch, such as `prod-eu`. Add green for `staging`, blue for `release/*`, and so on. Light and dark GitHub themes are both supported. |
 
 ## How it works
 
@@ -89,13 +89,7 @@ Load the repository folder with **Load unpacked**. After editing files, click th
 ./scripts/package.sh   # builds dist/pr-redline-<version>.zip for the Chrome Web Store
 ```
 
-To release, bump `version` in `manifest.json`, add its section to `CHANGELOG.md`, merge, then tag `main`:
-
-```bash
-git tag v1.6.0 && git push origin v1.6.0
-```
-
-The Release workflow builds the zip, publishes the GitHub release and submits it to the Chrome Web Store for review. [RELEASING.md](RELEASING.md) covers the store secrets it needs and what to do when a step fails.
+To release, bump `version` in `manifest.json`, add its section to `CHANGELOG.md` and merge. The merge into `main` tags the version, and the Release workflow builds the zip, publishes the GitHub release and submits it to the Chrome Web Store for review. [RELEASING.md](RELEASING.md) covers the store secrets it needs and what to do when a step fails.
 
 The website lives in `docs/` and is served by GitHub Pages at [redline.olegkoval.com](https://redline.olegkoval.com).
 
