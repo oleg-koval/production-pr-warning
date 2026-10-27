@@ -10,7 +10,7 @@ A release is a version tag on `main`. Pushing the tag builds the zip, publishes 
 
    ```bash
    git switch main && git pull --ff-only
-   git tag v1.6.0 && git push origin v1.6.0
+   git tag v1.6.1 && git push origin v1.6.1
    ```
 
 4. Watch the **Release** run in the Actions tab. When it is green, the store step summary says `Submitted for review, state PENDING_REVIEW`. Users get the update automatically once Google's review passes.

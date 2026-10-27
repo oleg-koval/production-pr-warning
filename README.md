@@ -92,7 +92,7 @@ Load the repository folder with **Load unpacked**. After editing files, click th
 To release, bump `version` in `manifest.json`, add its section to `CHANGELOG.md`, merge, then tag `main`:
 
 ```bash
-git tag v1.6.0 && git push origin v1.6.0
+git tag v1.6.1 && git push origin v1.6.1
 ```
 
 The Release workflow builds the zip, publishes the GitHub release and submits it to the Chrome Web Store for review. [RELEASING.md](RELEASING.md) covers the store secrets it needs and what to do when a step fails.

@@ -22,10 +22,10 @@ Colours GitHub pull requests by base branch: red for production, green for stagi
 **Description:**
 
 PR Redline colours every GitHub pull request by the branch it merges into.
-PRs into main, master, prod, production or any prod-* branch (such as prod-eu)
-turn red by default, and you can add more colours, such as green for staging,
-so you always know whether you are about to merge into staging or into
-production.
+PRs into main, master, prod, production or any prod-* or production-* branch
+(such as prod-eu) turn red by default, and you can add more colours, such as
+green for staging, so you always know whether you are about to merge into
+staging or into production.
 
 - Pull request and compare pages take the colour of their base branch, with a
   bar on top. Merged and closed ones keep a faded tint.
