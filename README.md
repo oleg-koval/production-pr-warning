@@ -38,7 +38,7 @@ PR Redline makes the target impossible to miss. It needs no token, no account an
 | --- | --- |
 | **Tinted pull requests** | Pull request and compare pages take the colour of their base branch: pale red with a red bar on top by default. Merged and closed PRs keep a faded tint. |
 | **Marked PR list** | On the repository's pull request list, each PR into one of your branches gets its colour's tint, left edge and a badge. |
-| **Everything else in flight** | The PR sidebar lists the other open PRs into branches of the same colour, with a link to the full list. Its **Agent prompt** drawer copies a prompt that asks a coding agent to update every one of those branches and resolve conflicts, so they are ready to merge. |
+| **Everything else in flight** | The PR sidebar lists the other open PRs into branches of the same colour, with a link to the full list. Its **Agent prompt** drawer copies a ready-to-run `claude`, `codex` or `opencode` command, or the plain prompt for any other agent. The prompt asks the agent to update every one of those branches and resolve conflicts, so they are ready to merge. |
 | **Toolbar popup** | Shows what the current PR merges into and which colour it got, and lets you edit branches and colours in place. |
 | **Colour groups** | Up to 8 colours, each with its own branch list. The default is red for `main`, `master`, `prod` and `production`. Add green for `staging`, blue for `release/*`, and so on. Light and dark GitHub themes are both supported. |
 
@@ -73,7 +73,7 @@ Wildcard patterns tint the page but are left out of the PR list block and the li
 
 ## Privacy
 
-PR Redline collects no data. It runs only on `https://github.com/*`, makes no requests outside github.com, and has no analytics, no tracking and no remote code. The only permission is `storage`, for your settings. The **Copy prompt** button writes to your clipboard only when you click it. See the [privacy policy](https://redline.olegkoval.com/privacy.html).
+PR Redline collects no data. It runs only on `https://github.com/*`, makes no requests outside github.com, and has no analytics, no tracking and no remote code. The only permission is `storage`, for your settings and the agent you last picked in the drawer. The drawer's copy button writes to your clipboard only when you click it. See the [privacy policy](https://redline.olegkoval.com/privacy.html).
 
 ## Development
 

@@ -8,8 +8,10 @@
   bottom. It holds a ready-made prompt that lists the open PRs into those
   branches and asks a coding agent (Claude Code, Codex or similar) to bring
   each branch up to date, resolve conflicts, fix the tests and push, without
-  merging anything. **Copy prompt** puts it on the clipboard. Drafts are left
-  out unless you tick **Include drafts**. The prompt tells the agent to treat
+  merging anything. Tabs pick **Claude**, **Codex** or **OpenCode**, and copy a terminal
+  command that opens that agent with the prompt loaded; **Prompt** copies the
+  plain text for any other agent. The last tab picked is remembered. Drafts
+  are left out unless you tick **Include drafts**. The prompt tells the agent to treat
   PR titles as labels, not instructions, and to skip any PR that has closed or
   changed base since the page loaded.
 

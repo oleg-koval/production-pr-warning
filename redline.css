@@ -135,6 +135,17 @@ html.gh-redline[data-color-mode="dark"] { --ghrl-card: #0d1117; }
 /* Keeps the closed drawer's controls out of the tab order; the transition delays it until the slide ends. */
 .ghrl-drawer:not(.ghrl-drawer--open) .ghrl-drawer-inner { visibility: hidden; }
 .ghrl-drawer-body { padding: 0 12px 12px; }
+.ghrl-harness { display: flex; flex-wrap: wrap; gap: 4px; margin: 0 0 8px; }
+.ghrl-harness-tab {
+  padding: 2px 7px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--borderColor-default, #d1d9e0); background: none;
+  font: inherit; font-size: 11px; color: var(--fgColor-muted, #59636e);
+}
+.ghrl-harness-tab:hover { color: var(--fgColor-default, #1f2328); }
+.ghrl-harness-tab[aria-selected="true"] {
+  border-color: var(--redline-user-bar, #cf222e); color: var(--fgColor-default, #1f2328);
+  background: color-mix(in srgb, var(--redline-user-bar, #cf222e) 14%, transparent); font-weight: 600;
+}
 .ghrl-drawer-note { margin: 0 0 8px; font-size: 12px; color: var(--fgColor-muted, #59636e); }
 .ghrl-prompt {
   margin: 0; max-height: 170px; overflow: auto; padding: 8px;
