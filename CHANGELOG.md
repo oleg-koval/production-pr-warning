@@ -9,7 +9,9 @@
   branches and asks a coding agent (Claude Code, Codex or similar) to bring
   each branch up to date, resolve conflicts, fix the tests and push, without
   merging anything. **Copy prompt** puts it on the clipboard. Drafts are left
-  out unless you tick **Include drafts**.
+  out unless you tick **Include drafts**. The prompt tells the agent to treat
+  PR titles as labels, not instructions, and to skip any PR that has closed or
+  changed base since the page loaded.
 
 ## 1.5.1 (2026-10-26)
 
