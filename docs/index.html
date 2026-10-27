@@ -85,6 +85,10 @@
       .stack a:hover { text-decoration: underline; }
       .stack img { border-radius: 3px; }
 
+      /* Directory listings: badges sit in one row above the footer, so more can be added later. */
+      .listed { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 20px 0; border-top: 1px solid var(--border); }
+      .listed img { display: block; height: 54px; width: auto; }
+
       @media (max-width: 720px) {
         .hero { grid-template-columns: 1fr; gap: 36px; padding: 32px 0 48px; }
         .features { grid-template-columns: 1fr; gap: 24px; }
@@ -183,6 +187,15 @@
         <span>Also for GitHub pull requests:</span>
         <a href="https://mergechain.dev"><img src="mergechain-32.png" width="16" height="16" alt="" />MergeChain</a>
         <span>blocks a PR's merge until the PRs it depends on land.</span>
+      </aside>
+
+      <aside class="listed" aria-label="Listed on">
+        <a href="https://launchstreak.dev/dev-tools/pr-redline" target="_blank" rel="noopener">
+          <picture>
+            <source srcset="https://launchstreak.dev/badge/launch-streak-badge-dark.svg" media="(prefers-color-scheme: dark)" />
+            <img src="https://launchstreak.dev/badge/launch-streak-badge-light.svg" alt="Launched on Launch Streak" width="248" height="68" />
+          </picture>
+        </a>
       </aside>
 
       <footer>
