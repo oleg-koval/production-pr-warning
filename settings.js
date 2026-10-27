@@ -21,7 +21,7 @@ const MAX_GROUPS = 8;
 
 const colours = ({ bgLight, bgDark, bar }) => ({ bgLight, bgDark, bar });
 
-const DEFAULT_GROUP = { branches: ['main', 'master', 'prod', 'production'], ...colours(COLOR_PRESETS[0]) };
+const DEFAULT_GROUP = { branches: ['main', 'master', 'prod', 'prod-*', 'production', 'production-*'], ...colours(COLOR_PRESETS[0]) };
 
 const DEFAULT_SETTINGS = {
   tintEnabled: true,

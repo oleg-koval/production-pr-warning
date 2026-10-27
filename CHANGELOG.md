@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.6.1 (2026-10-27)
+
+### Changed
+
+- New installs also turn PRs into `prod-*` and `production-*` branches red,
+  for example `prod-eu` or `production-us`. If you already saved your own
+  branch list, it is kept as it is: add `prod-*` in the popup or settings page
+  to get the same.
+
 ## 1.6.0 (2026-10-27)
 
 ### Added
